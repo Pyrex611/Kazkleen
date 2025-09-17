@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kazkleen CRM</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
             --primary: #000000;
@@ -21,15 +23,17 @@
         body {
             background-color: #111111;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            height: 100vh;
-            display: flex;
-            align-items: center;
             color: var(--text-light);
+            padding-top: 80px; /* Offset for fixed navbar */
         }
         
         .navbar {
             background-color: var(--primary);
             border-bottom: 1px solid #333;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
         }
         
         .navbar-brand {
@@ -41,6 +45,12 @@
         
         .navbar-brand img {
             margin-right: 10px;
+        }
+        
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
         }
         
         .card {
@@ -70,9 +80,40 @@
             background-color: #444;
         }
         
-        .btn-danger {
-            background-color: #666;
+        .btn-success {
+            background-color: #446644;
             border: none;
+        }
+        
+        .btn-success:hover {
+            background-color: #558855;
+        }
+        
+        .btn-warning {
+            background-color: #666644;
+            border: none;
+        }
+        
+        .btn-warning:hover {
+            background-color: #777755;
+        }
+        
+        .btn-danger {
+            background-color: #664444;
+            border: none;
+        }
+        
+        .btn-danger:hover {
+            background-color: #775555;
+        }
+        
+        .btn-info {
+            background-color: #444466;
+            border: none;
+        }
+        
+        .btn-info:hover {
+            background-color: #555577;
         }
         
         .btn-outline-primary {
@@ -141,6 +182,7 @@
             display: flex;
             justify-content: space-around;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
         
         .stat-card {
@@ -150,7 +192,8 @@
             text-align: center;
             box-shadow: 0 2px 4px rgba(255, 255, 255, 0.05);
             flex: 1;
-            margin: 0 10px;
+            margin: 10px;
+            min-width: 150px;
             border: 1px solid #333;
         }
         
@@ -212,63 +255,166 @@
         ::placeholder {
             color: #999 !important;
         }
+        
+        .floor-card {
+            background-color: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .floor-header {
+            background-color: #333;
+            padding: 10px 15px;
+            border-bottom: 1px solid #444;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .room-card {
+            background-color: #333;
+            border: 1px solid #555;
+            border-radius: 5px;
+            margin: 10px;
+        }
+        
+        .room-header {
+            background-color: #3a3a3a;
+            padding: 8px 12px;
+            border-bottom: 1px solid #555;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .room-content {
+            padding: 10px;
+        }
+        
+        .floor-actions, .room-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .collapsible-icon {
+            transition: transform 0.3s;
+        }
+        
+        .collapsed .collapsible-icon {
+            transform: rotate(-90deg);
+        }
+        
+        .service-badge {
+            background-color: #444;
+            color: #fff;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            display: inline-block;
+        }
+        
+        .completed {
+            opacity: 0.7;
+            position: relative;
+        }
+        
+        .completed::after {
+            content: "COMPLETED";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 100;
+        }
+        
+        .user-management {
+            background-color: #2a2a2a;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .export-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .stats-container {
+                flex-direction: column;
+            }
+            
+            .stat-card {
+                margin: 5px 0;
+            }
+            
+            .floor-actions, .room-actions {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- Login View -->
-    <div id="loginView" class="active-view">
-        <div class="login-container">
-            <div class="card">
-                <div class="card-header text-center">
-                    <h4 class="mb-0">Kazkleen CRM</h4>
-                    <p class="mb-0">Please sign in to continue</p>
-                </div>
-                <div class="card-body">
-                    <div class="user-type-selector">
-                        <button type="button" class="user-type-btn active" id="workerLoginBtn">Worker</button>
-                        <button type="button" class="user-type-btn" id="managerLoginBtn">Manager</button>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <img src="kazkleen_logo.jpg" alt="Kazkleen Logo" width="30" height="30" class="d-inline-block align-top me-2">
+                Kazkleen CRM
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text me-3" id="navbarUsername"></span>
+                <a class="nav-link" href="#" id="navbarLogoutBtn">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Login View -->
+        <div id="loginView" class="active-view">
+            <div class="login-container">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h4 class="mb-0">Kazkleen CRM</h4>
+                        <p class="mb-0">Please sign in to continue</p>
                     </div>
-                    
-                    <form id="loginForm">
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Username</label>
-                            <input type="text" class="form-control" id="username" required>
+                    <div class="card-body">
+                        <form id="loginForm">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Username</label>
+                                <input type="text" class="form-control" id="username" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="password" required>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">Sign In</button>
+                            </div>
+                        </form>
+                        
+                        <div class="mt-3 text-center">
+                            <p class="text-muted">Demo Logins:<br>
+                            Worker: worker / worker123<br>
+                            Manager: admin / admin123</p>
                         </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" required>
-                        </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">Sign In</button>
-                        </div>
-                    </form>
-                    
-                    <div class="mt-3 text-center">
-                        <p class="text-muted">Demo Logins:<br>
-                        Worker: worker / worker123<br>
-                        Manager: manager / manager123</p>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Worker View -->
-    <div id="workerView">
-        <nav class="navbar navbar-expand-lg navbar-dark">
-            <div class="container">
-                <a class="navbar-brand" href="#">
-                    <img src="kazkleen_logo.jpg" alt="Kazkleen Logo" width="30" height="30" class="d-inline-block align-top me-2">
-                    Kazkleen - Worker Portal
-                </a>
-                <div class="navbar-nav ms-auto">
-                    <span class="navbar-text me-3" id="workerUsername"></span>
-                    <a class="nav-link" href="#" id="logoutBtn">Logout</a>
-                </div>
-            </div>
-        </nav>
-
-        <div class="container mt-4">
+        <!-- Worker View -->
+        <div id="workerView">
             <div class="card">
                 <div class="card-header">
                     <h5 class="mb-0">Client Cleaning Order</h5>
@@ -286,43 +432,15 @@
                             </div>
                         </div>
                         
-                        <div class="table-responsive">
-                            <table class="table table-striped" id="itemsTable">
-                                <thead>
-                                    <tr>
-                                        <th width="60%">Service</th>
-                                        <th width="30%">Quantity</th>
-                                        <th width="10%">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <select class="form-select item-select">
-                                                <option value="">Select Service</option>
-                                                <option value="Window Cleaning">Window Cleaning</option>
-                                                <option value="Carpet Cleaning">Glass Wall</option>
-                                                <option value="Carpet Cleaning">Wardrobe</option>
-                                                <option value="Carpet Cleaning">Balcony</option>
-                                                <option value="Upholstery Cleaning">Upholstery Cleaning</option>
-                                                <option value="Deep Cleaning">Deep Cleaning</option>
-                                                <option value="Office Cleaning">Office Cleaning</option>
-                                                <option value="Floor Polishing">Floor Polishing</option>
-                                                <option value="Carpet Cleaning">Shower Glass</option>
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <input type="number" class="form-control quantity" min="1" value="1">
-                                        </td>
-                                        <td>
-                                            <button type="button" class="btn btn-danger btn-sm remove-row">X</button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div class="mb-3">
+                            <label class="form-label">Floors & Rooms</label>
+                            <div id="floorsContainer">
+                                <!-- Floors will be added here dynamically -->
+                            </div>
+                            <button type="button" class="btn btn-success mt-2" id="addFloorBtn">
+                                <i class="fas fa-plus"></i> Add Floor
+                            </button>
                         </div>
-                        
-                        <button type="button" class="btn btn-secondary mb-3" id="addRow">Add Another Service</button>
                         
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary">Submit Order</button>
@@ -331,29 +449,18 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Manager View -->
-    <div id="adminView">
-        <nav class="navbar navbar-expand-lg navbar-dark">
-            <div class="container">
-                <a class="navbar-brand" href="#">
-                    <img src="kazkleen_logo.jpg" alt="Kazkleen Logo" width="30" height="30" class="d-inline-block align-top me-2">
-                    Kazkleen - Management Dashboard
-                </a>
-                <div class="navbar-nav ms-auto">
-                    <span class="navbar-text me-3" id="adminUsername"></span>
-                    <a class="nav-link" href="#" id="adminLogoutBtn">Logout</a>
-                </div>
-            </div>
-        </nav>
-
-        <div class="container mt-4">
+        <!-- Manager View -->
+        <div id="adminView">
             <!-- Stats Overview -->
             <div class="stats-container">
                 <div class="stat-card">
                     <div class="stat-value" id="totalOrders">0</div>
                     <div class="stat-label">Total Orders</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="completedOrders">0</div>
+                    <div class="stat-label">Completed Orders</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-value" id="totalServices">0</div>
@@ -365,6 +472,44 @@
                 </div>
             </div>
             
+            <!-- User Management -->
+            <div class="card dashboard-card">
+                <div class="card-header">
+                    <h5 class="mb-0">User Management</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <form id="userForm">
+                                <div class="mb-3">
+                                    <label for="newUsername" class="form-label">Username</label>
+                                    <input type="text" class="form-control" id="newUsername" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="newPassword" class="form-label">Password</label>
+                                    <input type="password" class="form-control" id="newPassword" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="userRole" class="form-label">Role</label>
+                                    <select class="form-select" id="userRole" required>
+                                        <option value="worker">Worker</option>
+                                        <option value="manager">Manager</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Create User</button>
+                            </form>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Existing Users</h6>
+                            <div id="usersList" class="mt-3">
+                                <!-- Users will be listed here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Charts -->
             <div class="row">
                 <div class="col-md-8">
                     <div class="card dashboard-card">
@@ -388,39 +533,126 @@
                 </div>
             </div>
             
+            <!-- Orders Table -->
             <div class="card mt-4 dashboard-card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Recent Orders</h5>
+                    <h5 class="mb-0">Orders Management</h5>
                     <div>
+                        <button class="btn btn-sm btn-success me-2" id="createTableBtn">
+                            <i class="fas fa-plus"></i> Create New Table
+                        </button>
                         <button class="btn btn-sm btn-outline-secondary me-2" id="exportData">Export Data</button>
                         <button class="btn btn-sm btn-outline-primary" id="refreshData">Refresh Data</button>
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover" id="ordersTable">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Client</th>
-                                    <th>Services</th>
-                                    <th>Total Items</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Data will be populated by JavaScript -->
-                            </tbody>
-                        </table>
+                    <ul class="nav nav-tabs" id="ordersTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="active-tab" data-bs-toggle="tab" data-bs-target="#active" type="button" role="tab">Active Orders</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed" type="button" role="tab">Completed Orders</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content mt-3" id="ordersTabContent">
+                        <div class="tab-pane fade show active" id="active" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="ordersTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Client</th>
+                                            <th>Floors</th>
+                                            <th>Rooms</th>
+                                            <th>Services</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Data will be populated by JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="completed" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="completedOrdersTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Client</th>
+                                            <th>Floors</th>
+                                            <th>Rooms</th>
+                                            <th>Services</th>
+                                            <th>Completed Date</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Data will be populated by JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Create Table Modal -->
+    <div class="modal fade" id="createTableModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create New Table</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="tableForm">
+                        <div class="mb-3">
+                            <label for="tableName" class="form-label">Table Name</label>
+                            <input type="text" class="form-control" id="tableName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tableDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="tableDescription" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Columns</label>
+                            <div id="columnsContainer">
+                                <div class="column-item mb-2">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" placeholder="Column name" required>
+                                        <select class="form-select" style="max-width: 120px;">
+                                            <option value="text">Text</option>
+                                            <option value="number">Number</option>
+                                            <option value="date">Date</option>
+                                            <option value="boolean">Yes/No</option>
+                                        </select>
+                                        <button type="button" class="btn btn-danger remove-column"><i class="fas fa-trash"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-success mt-2" id="addColumnBtn">
+                                <i class="fas fa-plus"></i> Add Column
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" form="tableForm" class="btn btn-primary">Create Table</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Centralized data storage simulation
+        // Centralized data storage simulation (would be SQL in production)
         const CENTRAL_STORAGE_KEY = 'kazkleenCRMData';
         
         // Initialize central storage if it doesn't exist
@@ -432,27 +664,57 @@
                             id: 1,
                             clientName: 'Office Building A',
                             date: new Date().toISOString().split('T')[0],
-                            items: [
-                                { service: 'Carpet Cleaning', quantity: 5 },
-                                { service: 'Window Cleaning', quantity: 12 }
+                            floors: [
+                                {
+                                    name: "Ground Floor",
+                                    rooms: [
+                                        {
+                                            name: "Reception",
+                                            items: [
+                                                { service: 'Carpet Cleaning', quantity: 1 },
+                                                { service: 'Window Cleaning', quantity: 3 }
+                                            ]
+                                        },
+                                        {
+                                            name: "Conference Room",
+                                            items: [
+                                                { service: 'Floor Polishing', quantity: 1 },
+                                                { service: 'Upholstery Cleaning', quantity: 8 }
+                                            ]
+                                        }
+                                    ]
+                                }
                             ],
-                            submittedBy: 'worker'
+                            submittedBy: 'worker',
+                            status: 'active'
                         },
                         {
                             id: 2,
                             clientName: 'Retail Store B',
                             date: new Date(Date.now() - 86400000).toISOString().split('T')[0],
-                            items: [
-                                { service: 'Floor Polishing', quantity: 3 },
-                                { service: 'Deep Cleaning', quantity: 1 }
+                            floors: [
+                                {
+                                    name: "First Floor",
+                                    rooms: [
+                                        {
+                                            name: "Sales Floor",
+                                            items: [
+                                                { service: 'Deep Cleaning', quantity: 2 },
+                                                { service: 'Window Cleaning', quantity: 5 }
+                                            ]
+                                        }
+                                    ]
+                                }
                             ],
-                            submittedBy: 'worker'
+                            submittedBy: 'worker',
+                            status: 'active'
                         }
                     ],
                     users: [
                         { username: 'worker', password: 'worker123', role: 'worker' },
-                        { username: 'manager', password: 'manager123', role: 'manager' }
-                    ]
+                        { username: 'admin', password: 'admin123', role: 'manager' }
+                    ],
+                    tables: []
                 };
                 localStorage.setItem(CENTRAL_STORAGE_KEY, JSON.stringify(initialData));
             }
@@ -477,6 +739,7 @@
             // Generate a unique ID
             const newId = data.orders.length > 0 ? Math.max(...data.orders.map(o => o.id)) + 1 : 1;
             order.id = newId;
+            order.status = 'active';
             
             data.orders.push(order);
             saveToCentralData(data);
@@ -489,26 +752,259 @@
             return data.orders || [];
         }
         
+        // Floor and room management
+        let floorCounter = 0;
+        let roomCounter = 0;
+        
+        function addFloor() {
+            floorCounter++;
+            const floorId = `floor-${floorCounter}`;
+            const floorHTML = `
+                <div class="floor-card" id="${floorId}">
+                    <div class="floor-header">
+                        <div>
+                            <i class="fas fa-building collapsible-icon"></i>
+                            <input type="text" class="form-control form-control-sm d-inline-block w-auto" value="Floor ${floorCounter}" placeholder="Floor name">
+                        </div>
+                        <div class="floor-actions">
+                            <button type="button" class="btn btn-sm btn-info add-room-btn">
+                                <i class="fas fa-plus"></i> Add Room
+                            </button>
+                            <button type="button" class="btn btn-sm btn-danger remove-floor-btn">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="floor-content">
+                        <div class="rooms-container">
+                            <!-- Rooms will be added here -->
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('floorsContainer').insertAdjacentHTML('beforeend', floorHTML);
+            
+            // Add event listeners for the new floor
+            const floorElement = document.getElementById(floorId);
+            floorElement.querySelector('.add-room-btn').addEventListener('click', function() {
+                addRoom(floorId);
+            });
+            
+            floorElement.querySelector('.remove-floor-btn').addEventListener('click', function() {
+                floorElement.remove();
+            });
+            
+            // Add a room by default when adding a floor
+            addRoom(floorId);
+        }
+        
+        function addRoom(floorId) {
+            roomCounter++;
+            const roomId = `room-${roomCounter}`;
+            const roomHTML = `
+                <div class="room-card" id="${roomId}">
+                    <div class="room-header">
+                        <div>
+                            <i class="fas fa-door-open collapsible-icon"></i>
+                            <input type="text" class="form-control form-control-sm d-inline-block w-auto" value="Room ${roomCounter}" placeholder="Room name">
+                        </div>
+                        <div class="room-actions">
+                            <button type="button" class="btn btn-sm btn-info add-service-btn">
+                                <i class="fas fa-plus"></i> Add Service
+                            </button>
+                            <button type="button" class="btn btn-sm btn-danger remove-room-btn">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="room-content">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th width="60%">Service</th>
+                                    <th width="30%">Quantity</th>
+                                    <th width="10%">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <select class="form-select form-select-sm item-select">
+                                            <option value="">Select Service</option>
+                                            <option value="Carpet Cleaning">Carpet Cleaning</option>
+                                            <option value="Window Cleaning">Window Cleaning</option>
+                                            <option value="Floor Polishing">Floor Polishing</option>
+                                            <option value="Upholstery Cleaning">Upholstery Cleaning</option>
+                                            <option value="Deep Cleaning">Deep Cleaning</option>
+                                            <option value="Office Cleaning">Office Cleaning</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control form-control-sm quantity" min="1" value="1">
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-danger remove-service-btn">X</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            
+            const floorElement = document.getElementById(floorId);
+            floorElement.querySelector('.rooms-container').insertAdjacentHTML('beforeend', roomHTML);
+            
+            // Add event listeners for the new room
+            const roomElement = document.getElementById(roomId);
+            roomElement.querySelector('.add-service-btn').addEventListener('click', function() {
+                addServiceRow(roomId);
+            });
+            
+            roomElement.querySelector('.remove-room-btn').addEventListener('click', function() {
+                roomElement.remove();
+            });
+            
+            // Add event listener for the remove service button
+            roomElement.querySelector('.remove-service-btn').addEventListener('click', function() {
+                if (roomElement.querySelectorAll('.remove-service-btn').length > 1) {
+                    this.closest('tr').remove();
+                } else {
+                    alert('You need at least one service in the room.');
+                }
+            });
+        }
+        
+        function addServiceRow(roomId) {
+            const roomElement = document.getElementById(roomId);
+            const tbody = roomElement.querySelector('tbody');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>
+                    <select class="form-select form-select-sm item-select">
+                        <option value="">Select Service</option>
+                        <option value="Carpet Cleaning">Carpet Cleaning</option>
+                        <option value="Window Cleaning">Window Cleaning</option>
+                        <option value="Floor Polishing">Floor Polishing</option>
+                        <option value="Upholstery Cleaning">Upholstery Cleaning</option>
+                        <option value="Deep Cleaning">Deep Cleaning</option>
+                        <option value="Office Cleaning">Office Cleaning</option>
+                    </select>
+                </td>
+                <td>
+                    <input type="number" class="form-control form-select-sm quantity" min="1" value="1">
+                </td>
+                <td>
+                    <button type="button" class="btn btn-sm btn-danger remove-service-btn">X</button>
+                </td>
+            `;
+            tbody.appendChild(newRow);
+            
+            // Add event listener to the new remove button
+            newRow.querySelector('.remove-service-btn').addEventListener('click', function() {
+                if (roomElement.querySelectorAll('.remove-service-btn').length > 1) {
+                    this.closest('tr').remove();
+                } else {
+                    alert('You need at least one service in the room.');
+                }
+            });
+        }
+        
+        // Export table as JPG
+        function exportTableAsJPG(orderId) {
+            const order = getOrdersFromCentralStorage().find(o => o.id == orderId);
+            if (!order) return;
+            
+            // Create a printable element
+            const printableElement = document.createElement('div');
+            printableElement.style.backgroundColor = 'white';
+            printableElement.style.color = 'black';
+            printableElement.style.padding = '20px';
+            printableElement.style.maxWidth = '800px';
+            printableElement.style.margin = '0 auto';
+            
+            // Add logo and header
+            printableElement.innerHTML = `
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <h1 style="color: #000; margin-bottom: 10px;">Kazkleen</h1>
+                    <h2 style="color: #333;">Cleaning Project Overview</h2>
+                    <hr>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <h3>Client: ${order.clientName}</h3>
+                    <p><strong>Date:</strong> ${order.date}</p>
+                    <p><strong>Submitted by:</strong> ${order.submittedBy}</p>
+                </div>
+            `;
+            
+            // Add order details
+            order.floors.forEach(floor => {
+                printableElement.innerHTML += `
+                    <div style="margin-bottom: 15px;">
+                        <h4>${floor.name}</h4>
+                `;
+                
+                floor.rooms.forEach(room => {
+                    printableElement.innerHTML += `
+                        <div style="margin-left: 20px; margin-bottom: 10px;">
+                            <h5>${room.name}</h5>
+                            <ul>
+                    `;
+                    
+                    room.items.forEach(item => {
+                        printableElement.innerHTML += `<li>${item.service} (Quantity: ${item.quantity})</li>`;
+                    });
+                    
+                    printableElement.innerHTML += `
+                            </ul>
+                        </div>
+                    `;
+                });
+                
+                printableElement.innerHTML += `</div>`;
+            });
+            
+            // Add completion section if completed
+            if (order.status === 'completed') {
+                printableElement.innerHTML += `
+                    <div style="margin-top: 30px; padding-top: 10px; border-top: 1px solid #ccc;">
+                        <h3>Project Completion</h3>
+                        <p><strong>Completed on:</strong> ${order.completedDate}</p>
+                        <p><strong>Completed by:</strong> ${order.completedBy || 'Manager'}</p>
+                    </div>
+                `;
+            }
+            
+            // Add to document temporarily
+            printableElement.style.position = 'absolute';
+            printableElement.style.left = '-9999px';
+            document.body.appendChild(printableElement);
+            
+            // Use html2canvas to capture the element
+            html2canvas(printableElement).then(canvas => {
+                // Convert canvas to image
+                const imgData = canvas.toDataURL('image/jpeg');
+                
+                // Create download link
+                const link = document.createElement('a');
+                link.href = imgData;
+                link.download = `Kazkleen_Project_${order.clientName}_${order.date}.jpg`;
+                
+                // Trigger download
+                link.click();
+                
+                // Clean up
+                document.body.removeChild(printableElement);
+            });
+        }
+        
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize the application
             initCentralStorage();
             
-            // User type selection
-            const workerLoginBtn = document.getElementById('workerLoginBtn');
-            const managerLoginBtn = document.getElementById('managerLoginBtn');
-            let userType = 'worker'; // Default to worker
-            
-            workerLoginBtn.addEventListener('click', function() {
-                userType = 'worker';
-                workerLoginBtn.classList.add('active');
-                managerLoginBtn.classList.remove('active');
-            });
-            
-            managerLoginBtn.addEventListener('click', function() {
-                userType = 'manager';
-                managerLoginBtn.classList.add('active');
-                workerLoginBtn.classList.remove('active');
-            });
+            // Create modal instance
+            const createTableModal = new bootstrap.Modal(document.getElementById('createTableModal'));
             
             // Login form submission
             document.getElementById('loginForm').addEventListener('submit', function(e) {
@@ -522,19 +1018,21 @@
                 const user = data.users.find(u => u.username === username && u.password === password);
                 
                 if (user) {
+                    // Set current user
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                    document.getElementById('navbarUsername').textContent = user.username;
+                    
+                    // Show appropriate view based on role
+                    document.getElementById('loginView').classList.remove('active-view');
+                    
                     if (user.role === 'worker') {
-                        // Successful worker login
-                        document.getElementById('loginView').classList.remove('active-view');
                         document.getElementById('workerView').classList.add('active-view');
-                        document.getElementById('workerUsername').textContent = `Welcome, ${username}`;
-                        localStorage.setItem('currentUser', JSON.stringify(user));
+                        // Add a default floor when page loads
+                        addFloor();
                     } else if (user.role === 'manager') {
-                        // Successful manager login
-                        document.getElementById('loginView').classList.remove('active-view');
                         document.getElementById('adminView').classList.add('active-view');
-                        document.getElementById('adminUsername').textContent = `Welcome, ${username}`;
-                        localStorage.setItem('currentUser', JSON.stringify(user));
                         updateDashboard();
+                        loadUsersList();
                     }
                 } else {
                     alert('Invalid credentials. Please try again.');
@@ -542,82 +1040,166 @@
             });
             
             // Logout functionality
-            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+            document.getElementById('navbarLogoutBtn').addEventListener('click', function(e) {
                 e.preventDefault();
                 localStorage.removeItem('currentUser');
                 document.getElementById('workerView').classList.remove('active-view');
-                document.getElementById('loginView').classList.add('active-view');
-                document.getElementById('loginForm').reset();
-            });
-            
-            document.getElementById('adminLogoutBtn').addEventListener('click', function(e) {
-                e.preventDefault();
-                localStorage.removeItem('currentUser');
                 document.getElementById('adminView').classList.remove('active-view');
                 document.getElementById('loginView').classList.add('active-view');
                 document.getElementById('loginForm').reset();
+                // Clear floors container
+                document.getElementById('floorsContainer').innerHTML = '';
+            });
+            
+            // Add floor button
+            document.getElementById('addFloorBtn').addEventListener('click', function() {
+                addFloor();
+            });
+            
+            // Create table button
+            document.getElementById('createTableBtn').addEventListener('click', function() {
+                createTableModal.show();
+            });
+            
+            // Add column button
+            document.getElementById('addColumnBtn').addEventListener('click', function() {
+                const columnsContainer = document.getElementById('columnsContainer');
+                const newColumn = document.createElement('div');
+                newColumn.className = 'column-item mb-2';
+                newColumn.innerHTML = `
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Column name" required>
+                        <select class="form-select" style="max-width: 120px;">
+                            <option value="text">Text</option>
+                            <option value="number">Number</option>
+                            <option value="date">Date</option>
+                            <option value="boolean">Yes/No</option>
+                        </select>
+                        <button type="button" class="btn btn-danger remove-column"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+                columnsContainer.appendChild(newColumn);
+                
+                // Add event listener to remove button
+                newColumn.querySelector('.remove-column').addEventListener('click', function() {
+                    newColumn.remove();
+                });
+            });
+            
+            // Table form submission
+            document.getElementById('tableForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const tableName = document.getElementById('tableName').value;
+                const tableDescription = document.getElementById('tableDescription').value;
+                
+                // Collect columns
+                const columns = [];
+                const columnItems = document.querySelectorAll('.column-item');
+                
+                columnItems.forEach(item => {
+                    const nameInput = item.querySelector('input');
+                    const typeSelect = item.querySelector('select');
+                    
+                    if (nameInput.value) {
+                        columns.push({
+                            name: nameInput.value,
+                            type: typeSelect.value
+                        });
+                    }
+                });
+                
+                if (columns.length === 0) {
+                    alert('Please add at least one column to the table.');
+                    return;
+                }
+                
+                // Save table to central storage
+                const data = getCentralData();
+                if (!data.tables) data.tables = [];
+                
+                data.tables.push({
+                    id: data.tables.length + 1,
+                    name: tableName,
+                    description: tableDescription,
+                    columns: columns,
+                    createdAt: new Date().toISOString()
+                });
+                
+                saveToCentralData(data);
+                
+                // Show success message and close modal
+                alert('Table created successfully!');
+                createTableModal.hide();
+                
+                // Reset form
+                this.reset();
+                document.getElementById('columnsContainer').innerHTML = `
+                    <div class="column-item mb-2">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Column name" required>
+                            <select class="form-select" style="max-width: 120px;">
+                                <option value="text">Text</option>
+                                <option value="number">Number</option>
+                                <option value="date">Date</option>
+                                <option value="boolean">Yes/No</option>
+                            </select>
+                            <button type="button" class="btn btn-danger remove-column"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            // User form submission
+            document.getElementById('userForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('newUsername').value;
+                const password = document.getElementById('newPassword').value;
+                const role = document.getElementById('userRole').value;
+                
+                // Save user to central storage
+                const data = getCentralData();
+                const userExists = data.users.find(u => u.username === username);
+                
+                if (userExists) {
+                    alert('Username already exists. Please choose a different username.');
+                    return;
+                }
+                
+                data.users.push({
+                    username: username,
+                    password: password,
+                    role: role
+                });
+                
+                saveToCentralData(data);
+                
+                // Show success message and reload users list
+                alert('User created successfully!');
+                loadUsersList();
+                
+                // Reset form
+                this.reset();
             });
             
             // Check if user is already logged in
             const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
             if (currentUser) {
+                document.getElementById('navbarUsername').textContent = currentUser.username;
+                
                 if (currentUser.role === 'worker') {
                     document.getElementById('loginView').classList.remove('active-view');
                     document.getElementById('workerView').classList.add('active-view');
-                    document.getElementById('workerUsername').textContent = `Welcome, ${currentUser.username}`;
+                    // Add a default floor when page loads
+                    addFloor();
                 } else if (currentUser.role === 'manager') {
                     document.getElementById('loginView').classList.remove('active-view');
                     document.getElementById('adminView').classList.add('active-view');
-                    document.getElementById('adminUsername').textContent = `Welcome, ${currentUser.username}`;
                     updateDashboard();
+                    loadUsersList();
                 }
             }
-            
-            // Add row functionality
-            document.getElementById('addRow').addEventListener('click', function() {
-                const tbody = document.querySelector('#itemsTable tbody');
-                const newRow = document.createElement('tr');
-                newRow.innerHTML = `
-                    <td>
-                        <select class="form-select item-select">
-                            <option value="">Select Service</option>
-                            <option value="Carpet Cleaning">Carpet Cleaning</option>
-                            <option value="Window Cleaning">Window Cleaning</option>
-                            <option value="Floor Polishing">Floor Polishing</option>
-                            <option value="Upholstery Cleaning">Upholstery Cleaning</option>
-                            <option value="Deep Cleaning">Deep Cleaning</option>
-                            <option value="Office Cleaning">Office Cleaning</option>
-                        </select>
-                    </td>
-                    <td>
-                        <input type="number" class="form-control quantity" min="1" value="1">
-                    </td>
-                    <td>
-                        <button type="button" class="btn btn-danger btn-sm remove-row">X</button>
-                    </td>
-                `;
-                tbody.appendChild(newRow);
-                
-                // Add event listener to the new remove button
-                newRow.querySelector('.remove-row').addEventListener('click', function() {
-                    if (document.querySelectorAll('#itemsTable tbody tr').length > 1) {
-                        this.closest('tr').remove();
-                    } else {
-                        alert('You need at least one service in the order.');
-                    }
-                });
-            });
-            
-            // Remove row event delegation
-            document.querySelector('#itemsTable').addEventListener('click', function(e) {
-                if (e.target.classList.contains('remove-row')) {
-                    if (document.querySelectorAll('#itemsTable tbody tr').length > 1) {
-                        e.target.closest('tr').remove();
-                    } else {
-                        alert('You need at least one service in the order.');
-                    }
-                }
-            });
             
             // Form submission
             document.getElementById('cleaningForm').addEventListener('submit', function(e) {
@@ -632,30 +1214,70 @@
                     return;
                 }
                 
-                // Collect items
-                const items = [];
-                let isValid = true;
+                // Collect floors data
+                const floors = [];
+                const floorElements = document.querySelectorAll('.floor-card');
                 
-                document.querySelectorAll('#itemsTable tbody tr').forEach(row => {
-                    const itemSelect = row.querySelector('.item-select');
-                    const quantityInput = row.querySelector('.quantity');
-                    
-                    if (!itemSelect.value) {
-                        isValid = false;
-                        itemSelect.classList.add('is-invalid');
-                    } else {
-                        itemSelect.classList.remove('is-invalid');
-                        items.push({
-                            service: itemSelect.value,
-                            quantity: parseInt(quantityInput.value)
-                        });
-                    }
-                });
-                
-                if (!isValid) {
-                    alert('Please select a service for all items.');
+                if (floorElements.length === 0) {
+                    alert('Please add at least one floor.');
                     return;
                 }
+                
+                let isValid = true;
+                
+                floorElements.forEach(floorElement => {
+                    const floorName = floorElement.querySelector('.floor-header input').value || 'Unnamed Floor';
+                    const rooms = [];
+                    
+                    const roomElements = floorElement.querySelectorAll('.room-card');
+                    if (roomElements.length === 0) {
+                        isValid = false;
+                        alert('Each floor must have at least one room.');
+                        return;
+                    }
+                    
+                    roomElements.forEach(roomElement => {
+                        const roomName = roomElement.querySelector('.room-header input').value || 'Unnamed Room';
+                        const items = [];
+                        
+                        const serviceRows = roomElement.querySelectorAll('tbody tr');
+                        serviceRows.forEach(row => {
+                            const itemSelect = row.querySelector('.item-select');
+                            const quantityInput = row.querySelector('.quantity');
+                            
+                            if (!itemSelect.value) {
+                                isValid = false;
+                                itemSelect.classList.add('is-invalid');
+                            } else {
+                                itemSelect.classList.remove('is-invalid');
+                                items.push({
+                                    service: itemSelect.value,
+                                    quantity: parseInt(quantityInput.value)
+                                });
+                            }
+                        });
+                        
+                        if (items.length === 0) {
+                            isValid = false;
+                            alert(`Room "${roomName}" must have at least one service.`);
+                            return;
+                        }
+                        
+                        rooms.push({
+                            name: roomName,
+                            items: items
+                        });
+                    });
+                    
+                    if (!isValid) return;
+                    
+                    floors.push({
+                        name: floorName,
+                        rooms: rooms
+                    });
+                });
+                
+                if (!isValid) return;
                 
                 // Get current user
                 const user = JSON.parse(localStorage.getItem('currentUser'));
@@ -664,17 +1286,16 @@
                 addOrderToCentralStorage({
                     clientName,
                     date,
-                    items,
+                    floors,
                     submittedBy: user.username
                 });
                 
                 // Reset form
                 this.reset();
-                // Keep only one row
-                const tbody = document.querySelector('#itemsTable tbody');
-                while (tbody.children.length > 1) {
-                    tbody.removeChild(tbody.lastChild);
-                }
+                // Clear floors container
+                document.getElementById('floorsContainer').innerHTML = '';
+                // Add a default floor
+                addFloor();
                 
                 alert('Order submitted successfully!');
             });
@@ -690,6 +1311,67 @@
             });
         });
         
+        function loadUsersList() {
+            const data = getCentralData();
+            const usersList = document.getElementById('usersList');
+            usersList.innerHTML = '';
+            
+            data.users.forEach(user => {
+                const userElement = document.createElement('div');
+                userElement.className = 'd-flex justify-content-between align-items-center mb-2 p-2 bg-dark rounded';
+                userElement.innerHTML = `
+                    <div>
+                        <strong>${user.username}</strong> (${user.role})
+                    </div>
+                    <div>
+                        <button class="btn btn-sm btn-warning change-password-btn" data-username="${user.username}">
+                            <i class="fas fa-key"></i> Change Password
+                        </button>
+                        <button class="btn btn-sm btn-danger delete-user-btn" data-username="${user.username}">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                `;
+                usersList.appendChild(userElement);
+                
+                // Add event listeners
+                userElement.querySelector('.change-password-btn').addEventListener('click', function() {
+                    const username = this.getAttribute('data-username');
+                    changePassword(username);
+                });
+                
+                userElement.querySelector('.delete-user-btn').addEventListener('click', function() {
+                    const username = this.getAttribute('data-username');
+                    deleteUser(username);
+                });
+            });
+        }
+        
+        function changePassword(username) {
+            const newPassword = prompt(`Enter new password for ${username}:`);
+            if (newPassword) {
+                const data = getCentralData();
+                const user = data.users.find(u => u.username === username);
+                
+                if (user) {
+                    user.password = newPassword;
+                    saveToCentralData(data);
+                    alert('Password changed successfully!');
+                    loadUsersList();
+                }
+            }
+        }
+        
+        function deleteUser(username) {
+            if (confirm(`Are you sure you want to delete user ${username}?`)) {
+                const data = getCentralData();
+                data.users = data.users.filter(u => u.username !== username);
+                saveToCentralData(data);
+                alert('User deleted successfully!');
+                loadUsersList();
+            }
+        }
+        
         function updateDashboard() {
             updateCharts();
             populateOrdersTable();
@@ -701,15 +1383,26 @@
             
             // Calculate stats
             const totalOrders = orders.length;
-            const totalServices = orders.reduce((sum, order) => 
-                sum + order.items.reduce((itemSum, item) => itemSum + item.quantity, 0), 0);
+            const completedOrders = orders.filter(o => o.status === 'completed').length;
             
-            const uniqueClients = new Set(orders.map(order => order.clientName)).size;
+            let totalServices = 0;
+            let uniqueClients = new Set();
+            orders.forEach(order => {
+                uniqueClients.add(order.clientName);
+                order.floors.forEach(floor => {
+                    floor.rooms.forEach(room => {
+                        room.items.forEach(item => {
+                            totalServices += item.quantity;
+                        });
+                    });
+                });
+            });
             
             // Update DOM
             document.getElementById('totalOrders').textContent = totalOrders;
+            document.getElementById('completedOrders').textContent = completedOrders;
             document.getElementById('totalServices').textContent = totalServices;
-            document.getElementById('uniqueClients').textContent = uniqueClients;
+            document.getElementById('uniqueClients').textContent = uniqueClients.size;
         }
         
         function updateCharts() {
@@ -721,12 +1414,16 @@
             
             orders.forEach(order => {
                 // Count services
-                order.items.forEach(item => {
-                    if (serviceCounts[item.service]) {
-                        serviceCounts[item.service] += item.quantity;
-                    } else {
-                        serviceCounts[item.service] = item.quantity;
-                    }
+                order.floors.forEach(floor => {
+                    floor.rooms.forEach(room => {
+                        room.items.forEach(item => {
+                            if (serviceCounts[item.service]) {
+                                serviceCounts[item.service] += item.quantity;
+                            } else {
+                                serviceCounts[item.service] = item.quantity;
+                            }
+                        });
+                    });
                 });
                 
                 // Count orders by date
@@ -840,41 +1537,60 @@
         
         function populateOrdersTable() {
             const orders = getOrdersFromCentralStorage();
-            const tbody = document.querySelector('#ordersTable tbody');
-            tbody.innerHTML = '';
+            const activeTbody = document.querySelector('#ordersTable tbody');
+            const completedTbody = document.querySelector('#completedOrdersTable tbody');
+            activeTbody.innerHTML = '';
+            completedTbody.innerHTML = '';
             
             // Sort orders by date (newest first)
             orders.sort((a, b) => new Date(b.date) - new Date(a.date));
             
-            // Display only the 10 most recent orders
-            const recentOrders = orders.slice(0, 10);
-            
-            recentOrders.forEach(order => {
+            // Display orders in appropriate tables
+            orders.forEach(order => {
                 const row = document.createElement('tr');
+                if (order.status === 'completed') {
+                    row.classList.add('completed');
+                }
+                
+                // Calculate totals
+                const totalFloors = order.floors.length;
+                const totalRooms = order.floors.reduce((sum, floor) => sum + floor.rooms.length, 0);
                 
                 // Format services list
-                const servicesList = order.items.map(item => 
-                    `${item.service} (${item.quantity})`
-                ).join(', ');
-                
-                // Calculate total items
-                const totalItems = order.items.reduce((sum, item) => sum + item.quantity, 0);
+                const servicesList = [];
+                order.floors.forEach(floor => {
+                    floor.rooms.forEach(room => {
+                        room.items.forEach(item => {
+                            servicesList.push(`${item.service} (${item.quantity})`);
+                        });
+                    });
+                });
                 
                 row.innerHTML = `
                     <td>${order.date}</td>
                     <td>${order.clientName}</td>
-                    <td>${servicesList}</td>
-                    <td>${totalItems}</td>
+                    <td>${totalFloors}</td>
+                    <td>${totalRooms}</td>
+                    <td>${servicesList.join(', ')}</td>
+                    ${order.status === 'completed' ? `<td>${order.completedDate}</td>` : ''}
                     <td>
                         <button class="btn btn-sm btn-info view-order" data-id="${order.id}">View</button>
+                        ${order.status === 'active' ? 
+                            `<button class="btn btn-sm btn-success complete-order" data-id="${order.id}">Complete</button>` : 
+                            `<button class="btn btn-sm btn-warning export-jpg" data-id="${order.id}">Export JPG</button>`
+                        }
                         <button class="btn btn-sm btn-danger delete-order" data-id="${order.id}">Delete</button>
                     </td>
                 `;
                 
-                tbody.appendChild(row);
+                if (order.status === 'completed') {
+                    completedTbody.appendChild(row);
+                } else {
+                    activeTbody.appendChild(row);
+                }
             });
             
-            // Add event listeners to view buttons
+            // Add event listeners to buttons
             document.querySelectorAll('.view-order').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const orderId = this.getAttribute('data-id');
@@ -882,7 +1598,20 @@
                 });
             });
             
-            // Add event listeners to delete buttons
+            document.querySelectorAll('.complete-order').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const orderId = this.getAttribute('data-id');
+                    completeOrder(orderId);
+                });
+            });
+            
+            document.querySelectorAll('.export-jpg').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const orderId = this.getAttribute('data-id');
+                    exportTableAsJPG(orderId);
+                });
+            });
+            
             document.querySelectorAll('.delete-order').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const orderId = this.getAttribute('data-id');
@@ -896,7 +1625,43 @@
             const order = orders.find(o => o.id == orderId);
             
             if (order) {
-                alert(`Order Details:\nClient: ${order.clientName}\nDate: ${order.date}\nSubmitted by: ${order.submittedBy}\n\nServices:\n${order.items.map(item => `- ${item.service} (Qty: ${item.quantity})`).join('\n')}`);
+                let orderDetails = `Order Details:\nClient: ${order.clientName}\nDate: ${order.date}\nSubmitted by: ${order.submittedBy}\n\n`;
+                
+                order.floors.forEach(floor => {
+                    orderDetails += `Floor: ${floor.name}\n`;
+                    floor.rooms.forEach(room => {
+                        orderDetails += `  Room: ${room.name}\n`;
+                        room.items.forEach(item => {
+                            orderDetails += `    - ${item.service} (Qty: ${item.quantity})\n`;
+                        });
+                    });
+                });
+                
+                if (order.status === 'completed') {
+                    orderDetails += `\nCompleted on: ${order.completedDate}`;
+                    if (order.completedBy) {
+                        orderDetails += `\nCompleted by: ${order.completedBy}`;
+                    }
+                }
+                
+                alert(orderDetails);
+            }
+        }
+        
+        function completeOrder(orderId) {
+            if (confirm('Are you sure you want to mark this order as completed?')) {
+                const data = getCentralData();
+                const order = data.orders.find(o => o.id == orderId);
+                
+                if (order) {
+                    order.status = 'completed';
+                    order.completedDate = new Date().toISOString().split('T')[0];
+                    order.completedBy = JSON.parse(localStorage.getItem('currentUser')).username;
+                    
+                    saveToCentralData(data);
+                    updateDashboard();
+                    alert('Order marked as completed!');
+                }
             }
         }
         
@@ -915,12 +1680,16 @@
             let csvContent = "data:text/csv;charset=utf-8,";
             
             // Add header row
-            csvContent += "Date,Client,Service,Quantity,Submitted By\n";
+            csvContent += "Date,Client,Floor,Room,Service,Quantity,Status,Submitted By\n";
             
             // Add data rows
             orders.forEach(order => {
-                order.items.forEach(item => {
-                    csvContent += `${order.date},${order.clientName},${item.service},${item.quantity},${order.submittedBy}\n`;
+                order.floors.forEach(floor => {
+                    floor.rooms.forEach(room => {
+                        room.items.forEach(item => {
+                            csvContent += `${order.date},${order.clientName},${floor.name},${room.name},${item.service},${item.quantity},${order.status},${order.submittedBy}\n`;
+                        });
+                    });
                 });
             });
             

@@ -1,0 +1,435 @@
+:root {
+    --primary: #000000;
+    --secondary: #333333;
+    --accent: #555555;
+    --light: #f8f9fa;
+    --dark: #000000;
+    --text-light: #ffffff;
+    --text-dark: #000000;
+    --gray-light: #e9ecef;
+    --gray-medium: #6c757d;
+    --glossy-primary: linear-gradient(145deg, #2c2c2c, #000000);
+    --glossy-secondary: linear-gradient(145deg, #444444, #222222);
+    --glossy-accent: linear-gradient(145deg, #666666, #444444);
+}
+
+body {
+    background-color: #111111;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--text-light);
+    padding-top: 80px; /* Offset for fixed navbar */
+}
+
+.navbar {
+    background: var(--glossy-primary);
+    border-bottom: 1px solid #333;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    color: var(--text-light) !important;
+}
+
+.navbar-brand img {
+    margin-right: 10px;
+    border-radius: 5px;
+}
+
+.main-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.card {
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(255, 255, 255, 0.05);
+    margin-bottom: 20px;
+    border: 1px solid #333;
+    background: var(--glossy-secondary);
+    color: var(--text-light);
+    overflow: hidden;
+}
+
+.card-header {
+    background: var(--glossy-primary);
+    color: var(--text-light);
+    border-radius: 12px 12px 0 0 !important;
+    border-bottom: 1px solid #333;
+    font-weight: bold;
+    padding: 15px 20px;
+}
+
+.btn {
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    border: none;
+    font-weight: 500;
+}
+
+.btn-glossy {
+    background: var(--glossy-accent);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.btn-glossy:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.btn-primary {
+    background: var(--glossy-accent);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(145deg, #777777, #555555);
+    color: white;
+}
+
+.btn-success {
+    background: linear-gradient(145deg, #446644, #224422);
+    color: white;
+}
+
+.btn-success:hover {
+    background: linear-gradient(145deg, #558855, #335533);
+    color: white;
+}
+
+.btn-warning {
+    background: linear-gradient(145deg, #666644, #444422);
+    color: white;
+}
+
+.btn-warning:hover {
+    background: linear-gradient(145deg, #777755, #555533);
+    color: white;
+}
+
+.btn-danger {
+    background: linear-gradient(145deg, #664444, #442222);
+    color: white;
+}
+
+.btn-danger:hover {
+    background: linear-gradient(145deg, #775555, #553333);
+    color: white;
+}
+
+.btn-info {
+    background: linear-gradient(145deg, #444466, #222244);
+    color: white;
+}
+
+.btn-info:hover {
+    background: linear-gradient(145deg, #555577, #333355);
+    color: white;
+}
+
+.btn-outline-primary {
+    border-color: #666;
+    color: #ccc;
+    background: transparent;
+}
+
+.btn-outline-primary:hover {
+    background: #444;
+    border-color: #555;
+    color: white;
+}
+
+.table-responsive {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.table-rounded {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.table-rounded thead th {
+    background: var(--glossy-primary);
+    color: white;
+    border: none;
+    padding: 12px 15px;
+}
+
+.table-rounded tbody td {
+    padding: 12px 15px;
+    border-color: #444;
+}
+
+.dashboard-card {
+    transition: transform 0.3s;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+}
+
+#workerView, #adminView, #loginView {
+    display: none;
+}
+
+.active-view {
+    display: block !important;
+}
+
+.login-container {
+    max-width: 400px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.user-type-selector {
+    display: flex;
+    margin-bottom: 20px;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: #222;
+}
+
+.user-type-btn {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    background-color: #333;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    color: #ccc;
+    border-radius: 0;
+}
+
+.user-type-btn.active {
+    background-color: #000;
+    color: white;
+}
+
+.stats-container {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.stat-card {
+    background: var(--glossy-secondary);
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(255, 255, 255, 0.05);
+    flex: 1;
+    margin: 10px;
+    min-width: 150px;
+    border: 1px solid #333;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #aaa;
+}
+
+.form-control, .form-select {
+    background-color: #333;
+    border: 1px solid #444;
+    color: white;
+    border-radius: 8px;
+    padding: 10px 15px;
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: #444;
+    border-color: #666;
+    color: white;
+    box-shadow: 0 0 0 0.2rem rgba(100, 100, 100, 0.25);
+}
+
+.form-label {
+    color: #ddd;
+    font-weight: 500;
+}
+
+.table {
+    color: #ddd;
+    border-color: #444;
+}
+
+.table-hover tbody tr:hover {
+    color: white;
+    background-color: #333;
+}
+
+.table-striped>tbody>tr:nth-of-type(odd) {
+    --bs-table-accent-bg: rgba(255, 255, 255, 0.05);
+    color: #ddd;
+}
+
+.nav-link {
+    color: #ccc !important;
+    border-radius: 8px;
+    margin: 0 2px;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: white !important;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.navbar-text {
+    color: #ccc !important;
+}
+
+::placeholder {
+    color: #999 !important;
+}
+
+.floor-card {
+    background: var(--glossy-secondary);
+    border: 1px solid #444;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    overflow: hidden;
+}
+
+.floor-header {
+    background: var(--glossy-primary);
+    padding: 12px 15px;
+    border-bottom: 1px solid #444;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.room-card {
+    background: var(--glossy-accent);
+    border: 1px solid #555;
+    border-radius: 10px;
+    margin: 10px;
+    overflow: hidden;
+}
+
+.room-header {
+    background: linear-gradient(145deg, #4a4a4a, #2a2a2a);
+    padding: 10px 12px;
+    border-bottom: 1px solid #555;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.room-content {
+    padding: 12px;
+}
+
+.floor-actions, .room-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.collapsible-icon {
+    transition: transform 0.3s;
+}
+
+.collapsed .collapsible-icon {
+    transform: rotate(-90deg);
+}
+
+.service-badge {
+    background-color: #444;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    display: inline-block;
+}
+
+.completed {
+    opacity: 0.7;
+    position: relative;
+}
+
+.completed::after {
+    content: "COMPLETED";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-45deg);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    padding: 10px 20px;
+    border-radius: 5px;
+    z-index: 100;
+}
+
+.user-management {
+    background: var(--glossy-secondary);
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.export-container {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.modal-content {
+    background: var(--glossy-secondary);
+    color: white;
+    border-radius: 12px;
+    border: 1px solid #444;
+}
+
+.modal-header {
+    background: var(--glossy-primary);
+    border-bottom: 1px solid #444;
+    border-radius: 12px 12px 0 0;
+}
+
+.modal-footer {
+    border-top: 1px solid #444;
+}
+
+@media (max-width: 768px) {
+    .stats-container {
+        flex-direction: column;
+    }
+    
+    .stat-card {
+        margin: 5px 0;
+    }
+    
+    .floor-actions, .room-actions {
+        flex-direction: column;
+    }
+    
+    .navbar-nav {
+        flex-direction: row;
+    }
+    
+    .main-container {
+        padding: 10px;
+    }
+}
