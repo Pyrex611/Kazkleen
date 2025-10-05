@@ -12,6 +12,7 @@ const serviceRoutes = require('./routes/services');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const HOST = '0.0.0.0'; // Allow external connections
 
 // Middleware
 app.use(cors());
@@ -66,10 +67,25 @@ app.get('/worker', (req, res) => {
 
 // Initialize database and start server
 database.init().then(() => {
-    app.listen(PORT, () => {
-        console.log(`Kazkleen CRM Server running on port ${PORT}`);
-        console.log(`Frontend: http://localhost:${PORT}`);
+    app.listen(PORT, HOST, () => {
+        console.log(`Kazkleen CRM Server running`);
+        console.log(`Local: http://localhost:${PORT}`);
+        console.log(`Network: http://${getLocalIP()}:${PORT}`);
+        console.log(`Access on phone: Use the Network URL above`);
     });
 }).catch(err => {
     console.error('Failed to initialize database:', err);
 });
+
+// Function to get local IP address
+function getLocalIP() {
+    const interfaces = require('os').networkInterfaces();
+    for (const name of Object.keys(interfaces)) {
+        for (const interface of interfaces[name]) {
+            if (interface.family === 'IPv4' && !interface.internal) {
+                return interface.address;
+            }
+        }
+    }
+    return 'localhost';
+}
