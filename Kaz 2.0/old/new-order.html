@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kazkleen CRM - New Order</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <!-- PDF Generation Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        .service-item {
+            transition: all 0.2s ease;
+        }
+        .service-item:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        .add-btn {
+            transition: all 0.3s ease;
+        }
+        .add-btn:hover {
+            transform: scale(1.1);
+        }
+        .floor-tab {
+            transition: all 0.2s ease;
+        }
+        .floor-tab:hover:not(.active-floor) {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        .active-floor {
+            background-color: black;
+            color: white;
+        }
+        /* Summary Styles */
+        .summary-header {
+            background: linear-gradient(135deg, #000000 0%, #333333 100%);
+            color: white;
+        }
+        .room-badge {
+            background: #f3f4f6;
+            border-left: 4px solid #3b82f6;
+        }
+        .service-badge {
+            background: #f0f9ff;
+            border: 1px solid #e0f2fe;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <!-- Fixed Header -->
+    <header class="bg-black text-white sticky top-0 z-50 shadow-lg">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <img src="kazkleen.jpg" alt="Kazkleen Logo" class="h-10">
+                <h1 class="text-xl font-bold">Kazkleen CRM</h1>
+            </div>
+            <nav class="hidden md:flex space-x-6">
+                <a href="dashboard.html" class="hover:text-gray-300 transition">Dashboard</a>
+                <a href="orders.html" class="hover:text-gray-300 transition">Orders</a>
+                <a href="users.html" class="hover:text-gray-300 transition">Users</a>
+                <a href="#" id="logoutBtn" class="hover:text-gray-300 transition">Logout</a>
+            </nav>
+            <button id="mobileMenuBtn" class="md:hidden">
+                <i data-feather="menu" class="text-white"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Create New Cleaning Order</h2>
+                <a href="orders.html" class="text-gray-500 hover:text-gray-700 flex items-center">
+                    <i data-feather="arrow-left" class="w-4 h-4 mr-1"></i>
+                    Back to Orders
+                </a>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <!-- Order Details Section -->
+                <div class="p-6 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold mb-4">Order Details</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div>
+                            <label for="clientName" class="block text-sm font-medium text-gray-700 mb-1">Client Name *</label>
+                            <input type="text" id="clientName" required
+                                   class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                                   placeholder="Enter client name">
+                        </div>
+                        <div>
+                            <label for="orderDate" class="block text-sm font-medium text-gray-700 mb-1">Date *</label>
+                            <input type="date" id="orderDate" required
+                                   class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label for="clientPhone" class="block text-sm font-medium text-gray-700 mb-1">Client Phone</label>
+                            <input type="tel" id="clientPhone" 
+                                   class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                                   placeholder="Enter client phone">
+                        </div>
+                        <div>
+                            <label for="clientEmail" class="block text-sm font-medium text-gray-700 mb-1">Client Email</label>
+                            <input type="email" id="clientEmail" 
+                                   class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                                   placeholder="Enter client email">
+                        </div>
+                        <div>
+                            <label for="clientAddress" class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                            <input type="text" id="clientAddress" 
+                                   class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                                   placeholder="Enter client address">
+                        </div>
+                        <div>
+                            <label for="quoteNumber" class="block text-sm font-medium text-gray-700 mb-1">Quote Number</label>
+                            <input type="text" id="quoteNumber" 
+                                   class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                                   placeholder="Auto-generated" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Floors Section -->
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">Floors & Rooms</h3>
+                        <button id="addFloorBtn" class="add-btn bg-black text-white p-2 rounded-full">
+                            <i data-feather="plus" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Floor 1 Content -->
+                    <div class="floor-section mb-6 border border-gray-200 rounded-lg p-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="flex items-center space-x-3">
+                                <h4 class="font-medium text-lg">Floor 1</h4>
+                                <input type="text" placeholder="Floor name (e.g., Ground Floor)" 
+                                       class="floor-name px-3 py-1 text-sm border border-gray-300 rounded" value="Ground Floor">
+                            </div>
+                            <button class="add-room-btn bg-gray-800 text-white px-3 py-1 rounded-lg text-sm flex items-center">
+                                <i data-feather="plus" class="w-3 h-3 mr-1"></i>
+                                Add Room
+                            </button>
+                        </div>
+                        
+                        <div id="roomsContainer1" class="space-y-4">
+                            <!-- Room template will be added here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Additional floors will be added here -->
+                    <div id="additionalFloors"></div>
+                </div>
+
+                <!-- Notes Section -->
+                <div class="p-6 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold mb-4">Special Instructions</h3>
+                    <textarea id="orderNotes" 
+                              class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                              rows="3" placeholder="Any special instructions for the cleaning team..."></textarea>
+                </div>
+                
+                <!-- Submit Section -->
+                <div class="p-6 flex justify-end space-x-4">
+                    <button id="saveDraftBtn" 
+                            class="bg-gray-200 text-gray-800 py-2 px-6 rounded-lg font-semibold hover:bg-gray-300 transition flex items-center space-x-2">
+                        <i data-feather="save"></i>
+                        <span>Save as Draft</span>
+                    </button>
+                    <button id="submitOrderBtn" 
+                            class="bg-black text-white py-2 px-6 rounded-lg font-semibold hover:bg-gray-800 transition flex items-center space-x-2">
+                        <i data-feather="check-circle"></i>
+                        <span>Submit Order</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Order Summary Modal -->
+    <div id="orderSummaryModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto mx-4">
+            <!-- Summary content that will be converted to PDF -->
+            <div id="pdfContent" class="p-8 bg-white">
+                <div class="summary-header rounded-t-xl p-6 text-white">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center space-x-4">
+                            <div class="bg-white p-2 rounded-lg">
+                                <img src="kazkleen.jpg" alt="Kazkleen Logo" class="h-12">
+                            </div>
+                            <div>
+                                <h1 class="text-2xl font-bold">KAZ KLEEN CLEANING SERVICES</h1>
+                                <p class="text-blue-100">Professional Cleaning Solutions</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <h2 class="text-xl font-semibold">CUSTOMER QUOTATION SUMMARY</h2>
+                            <p class="text-sm">Date: <span id="summaryDate"></span></p>
+                            <p class="text-sm">Quote #: <span id="summaryQuoteNumber"></span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-6 border-b">
+                    <h3 class="text-lg font-semibold mb-4">Client Information</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <p class="font-medium text-gray-600">Client Name:</p>
+                            <p class="text-lg" id="summaryClientName"></p>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-600">Phone:</p>
+                            <p id="summaryClientPhone">Not provided</p>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-600">Email:</p>
+                            <p id="summaryClientEmail">Not provided</p>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <p class="font-medium text-gray-600">Address:</p>
+                        <p id="summaryClientAddress">Not provided</p>
+                    </div>
+                </div>
+
+                <!-- Summary Statistics -->
+                <div class="p-6 border-b bg-gray-50">
+                    <h3 class="text-lg font-semibold mb-4">Project Overview</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center" id="summaryStats">
+                        <!-- Stats will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Floor-by-Floor Breakdown -->
+                <div class="p-6" id="floorBreakdown">
+                    <!-- Floor breakdown will be populated by JavaScript -->
+                </div>
+
+                <!-- Totals Section -->
+                <div class="p-6 bg-gray-50 border-t">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-sm text-gray-600">Prepared by Kazkleen CRM</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-lg font-semibold">Thank you for your business!</p>
+                            <p class="text-sm text-gray-600">Quotation valid for 30 days</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="p-6 border-t bg-gray-50 flex justify-end space-x-3">
+                <button id="downloadPdfBtn" class="bg-red-600 text-white py-2 px-4 rounded-lg flex items-center space-x-2 hover:bg-red-700 transition">
+                    <i data-feather="download"></i>
+                    <span>Download as PDF</span>
+                </button>
+                <button id="downloadJpgBtn" class="bg-blue-600 text-white py-2 px-4 rounded-lg flex items-center space-x-2 hover:bg-blue-700 transition">
+                    <i data-feather="download"></i>
+                    <span>Download as JPG</span>
+                </button>
+                <button id="confirmSubmitBtn" class="bg-black text-white py-2 px-4 rounded-lg flex items-center space-x-2 hover:bg-gray-800 transition">
+                    <i data-feather="check"></i>
+                    <span>Confirm Submission</span>
+                </button>
+                <button id="closeSummaryBtn" class="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-black text-white py-4 text-center text-sm">
+        <p>&copy; 2025 Kazkleen Cleaning Services. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Initialize jsPDF
+        const { jsPDF } = window.jspdf;
+
+        // Service pricing (you can expand this)
+        const servicePricing = {
+            'Carpet Cleaning': 45,
+            'Window Washing': 25,
+            'Dusting': 15,
+            'Vacuuming': 20,
+            'Disinfection': 35,
+            'Deep Cleaning': 60
+        };
+
+        // Floor management
+        let floorCount = 1;
+        
+        // Generate quote number
+        function generateQuoteNumber() {
+            const timestamp = new Date().getTime().toString().slice(-6);
+            return `Q-${timestamp}`;
+        }
+
+        // Set initial quote number
+        document.getElementById('quoteNumber').value = generateQuoteNumber();
+
+        // Room template
+        function createRoomTemplate(floorId, roomNumber) {
+            return `
+                <div class="room-item bg-gray-50 rounded-lg p-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="flex items-center space-x-3">
+                            <h5 class="font-medium">Room ${roomNumber}</h5>
+                            <input type="text" placeholder="Room name (e.g., Living Room)" 
+                                   class="room-name px-3 py-1 text-sm border border-gray-300 rounded" value="Room ${roomNumber}">
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="text-red-500 hover:text-red-700 delete-room">
+                                <i data-feather="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="service-list space-y-3">
+                        <div class="service-item flex items-center justify-between p-3 bg-white rounded border">
+                            <div class="flex items-center space-x-4 flex-grow">
+                                <select class="service-type border border-gray-300 rounded px-3 py-2 text-sm flex-grow">
+                                    <option value="">Select Service</option>
+                                    <option value="Carpet Cleaning">Carpet Cleaning</option>
+                                    <option value="Window Washing">Window Washing</option>
+                                    <option value="Dusting">Dusting</option>
+                                    <option value="Vacuuming">Vacuuming</option>
+                                    <option value="Disinfection">Disinfection</option>
+                                    <option value="Deep Cleaning">Deep Cleaning</option>
+                                </select>
+                                <div class="flex items-center space-x-2">
+                                    <label class="text-sm text-gray-600">Qty:</label>
+                                    <input type="number" min="1" value="1" 
+                                           class="service-quantity w-20 border border-gray-300 rounded px-2 py-1 text-sm">
+                                </div>
+                                <div class="text-sm font-medium service-price text-green-600">
+                                    $0
+                                </div>
+                            </div>
+                            <button class="text-red-500 hover:text-red-700 delete-service ml-4">
+                                <i data-feather="x" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button class="add-service-btn mt-3 text-sm text-blue-600 hover:text-blue-800 flex items-center font-medium">
+                        <i data-feather="plus" class="w-4 h-4 mr-1"></i>
+                        Add Another Service
+                    </button>
+                </div>
+            `;
+        }
+
+        // Calculate service price
+        function calculateServicePrice(serviceElement) {
+            const serviceType = serviceElement.querySelector('.service-type').value;
+            const quantity = parseInt(serviceElement.querySelector('.service-quantity').value) || 1;
+            const price = servicePricing[serviceType] || 0;
+            const total = price * quantity;
+            
+            serviceElement.querySelector('.service-price').textContent = `$${total}`;
+            return total;
+        }
+
+        // Add floor functionality
+        document.getElementById('addFloorBtn').addEventListener('click', function() {
+            floorCount++;
+            
+            const floorSection = document.createElement('div');
+            floorSection.className = 'floor-section mb-6 border border-gray-200 rounded-lg p-4';
+            floorSection.innerHTML = `
+                <div class="flex justify-between items-center mb-4">
+                    <div class="flex items-center space-x-3">
+                        <h4 class="font-medium text-lg">Floor ${floorCount}</h4>
+                        <input type="text" placeholder="Floor name" 
+                               class="floor-name px-3 py-1 text-sm border border-gray-300 rounded" value="Floor ${floorCount}">
+                    </div>
+                    <button class="add-room-btn bg-gray-800 text-white px-3 py-1 rounded-lg text-sm flex items-center">
+                        <i data-feather="plus" class="w-3 h-3 mr-1"></i>
+                        Add Room
+                    </button>
+                </div>
+                
+                <div id="roomsContainer${floorCount}" class="space-y-4">
+                    <!-- Rooms will be added here -->
+                </div>
+            `;
+            
+            document.getElementById('additionalFloors').appendChild(floorSection);
+            feather.replace();
+            
+            // Add event listener to new room button
+            floorSection.querySelector('.add-room-btn').addEventListener('click', function() {
+                addRoom(floorCount);
+            });
+            
+            // Add initial room
+            addRoom(floorCount);
+        });
+
+        // Add room functionality
+        function addRoom(floorId) {
+            const roomsContainer = document.getElementById(`roomsContainer${floorId}`);
+            const roomCount = roomsContainer.children.length + 1;
+            
+            const roomItem = document.createElement('div');
+            roomItem.innerHTML = createRoomTemplate(floorId, roomCount);
+            roomsContainer.appendChild(roomItem);
+            
+            feather.replace();
+            
+            // Add event listeners
+            const roomElement = roomsContainer.lastElementChild;
+            
+            // Delete room
+            roomElement.querySelector('.delete-room').addEventListener('click', function() {
+                if (confirm('Are you sure you want to delete this room?')) {
+                    roomElement.remove();
+                    renumberRooms(floorId);
+                }
+            });
+            
+            // Add service
+            roomElement.querySelector('.add-service-btn').addEventListener('click', function() {
+                addService(roomElement.querySelector('.service-list'));
+            });
+            
+            // Service type change
+            const serviceSelect = roomElement.querySelector('.service-type');
+            serviceSelect.addEventListener('change', function() {
+                calculateServicePrice(roomElement.querySelector('.service-item'));
+            });
+            
+            // Quantity change
+            const quantityInput = roomElement.querySelector('.service-quantity');
+            quantityInput.addEventListener('change', function() {
+                calculateServicePrice(roomElement.querySelector('.service-item'));
+            });
+            
+            // Delete service
+            roomElement.querySelector('.delete-service').addEventListener('click', function() {
+                if (roomElement.querySelectorAll('.service-item').length > 1) {
+                    this.closest('.service-item').remove();
+                }
+            });
+        }
+
+        // Add service functionality
+        function addService(serviceList) {
+            const serviceItem = document.createElement('div');
+            serviceItem.className = 'service-item flex items-center justify-between p-3 bg-white rounded border';
+            serviceItem.innerHTML = `
+                <div class="flex items-center space-x-4 flex-grow">
+                    <select class="service-type border border-gray-300 rounded px-3 py-2 text-sm flex-grow">
+                        <option value="">Select Service</option>
+                        <option value="Carpet Cleaning">Carpet Cleaning</option>
+                        <option value="Window Washing">Window Washing</option>
+                        <option value="Dusting">Dusting</option>
+                        <option value="Vacuuming">Vacuuming</option>
+                        <option value="Disinfection">Disinfection</option>
+                        <option value="Deep Cleaning">Deep Cleaning</option>
+                    </select>
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm text-gray-600">Qty:</label>
+                        <input type="number" min="1" value="1" 
+                               class="service-quantity w-20 border border-gray-300 rounded px-2 py-1 text-sm">
+                    </div>
+                    <div class="text-sm font-medium service-price text-green-600">
+                        $0
+                    </div>
+                </div>
+                <button class="text-red-500 hover:text-red-700 delete-service ml-4">
+                    <i data-feather="x" class="w-4 h-4"></i>
+                </button>
+            `;
+            
+            serviceList.appendChild(serviceItem);
+            feather.replace();
+            
+            // Add event listeners for new service
+            serviceItem.querySelector('.service-type').addEventListener('change', function() {
+                calculateServicePrice(serviceItem);
+            });
+            
+            serviceItem.querySelector('.service-quantity').addEventListener('change', function() {
+                calculateServicePrice(serviceItem);
+            });
+            
+            serviceItem.querySelector('.delete-service').addEventListener('click', function() {
+                serviceItem.remove();
+            });
+        }
+
+        // Renumber rooms after deletion
+        function renumberRooms(floorId) {
+            const roomsContainer = document.getElementById(`roomsContainer${floorId}`);
+            const rooms = roomsContainer.querySelectorAll('.room-item');
+            rooms.forEach((room, index) => {
+                room.querySelector('h5').textContent = `Room ${index + 1}`;
+                room.querySelector('.room-name').value = `Room ${index + 1}`;
+            });
+        }
+
+        // Initialize first room
+        document.addEventListener('DOMContentLoaded', function() {
+            addRoom(1);
+            
+            // Set today's date as default
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('orderDate').value = today;
+        });
+
+        // Generate comprehensive order summary
+        function generateOrderSummary() {
+            const clientName = document.getElementById('clientName').value;
+            const clientPhone = document.getElementById('clientPhone').value;
+            const clientEmail = document.getElementById('clientEmail').value;
+            const clientAddress = document.getElementById('clientAddress').value;
+            const orderDate = document.getElementById('orderDate').value;
+            const orderNotes = document.getElementById('orderNotes').value;
+            const quoteNumber = document.getElementById('quoteNumber').value;
+
+            // Update summary header
+            document.getElementById('summaryDate').textContent = new Date(orderDate).toLocaleDateString();
+            document.getElementById('summaryQuoteNumber').textContent = quoteNumber;
+            document.getElementById('summaryClientName').textContent = clientName;
+            document.getElementById('summaryClientPhone').textContent = clientPhone || 'Not provided';
+            document.getElementById('summaryClientEmail').textContent = clientEmail || 'Not provided';
+            document.getElementById('summaryClientAddress').textContent = clientAddress || 'Not provided';
+
+            // Collect floor data and calculate statistics
+            let floors = [];
+            let totalServices = 0;
+            let totalRooms = 0;
+            let totalWindows = 0;
+            let totalBathrooms = 0;
+            let totalPrice = 0;
+
+            document.querySelectorAll('.floor-section').forEach(floor => {
+                const floorName = floor.querySelector('.floor-name').value;
+                let floorData = {
+                    name: floorName,
+                    rooms: [],
+                    totalServices: 0,
+                    totalPrice: 0
+                };
+
+                floor.querySelectorAll('.room-item').forEach(room => {
+                    const roomName = room.querySelector('.room-name').value;
+                    let roomData = {
+                        name: roomName,
+                        services: [],
+                        totalPrice: 0
+                    };
+
+                    room.querySelectorAll('.service-item').forEach(service => {
+                        const serviceType = service.querySelector('.service-type').value;
+                        const quantity = parseInt(service.querySelector('.service-quantity').value) || 1;
+                        const price = servicePricing[serviceType] || 0;
+                        const serviceTotal = price * quantity;
+
+                        if (serviceType) {
+                            roomData.services.push({
+                                type: serviceType,
+                                quantity: quantity,
+                                price: serviceTotal
+                            });
+                            roomData.totalPrice += serviceTotal;
+                            
+                            // Count specific services for statistics
+                            if (serviceType === 'Window Washing') totalWindows += quantity;
+                            if (serviceType.includes('Bathroom') || serviceType.includes('Toilet')) totalBathrooms += quantity;
+                        }
+                    });
+
+                    if (roomData.services.length > 0) {
+                        floorData.rooms.push(roomData);
+                        floorData.totalServices += roomData.services.length;
+                        floorData.totalPrice += roomData.totalPrice;
+                        totalRooms++;
+                        totalServices += roomData.services.length;
+                        totalPrice += roomData.totalPrice;
+                    }
+                });
+
+                if (floorData.rooms.length > 0) {
+                    floors.push(floorData);
+                }
+            });
+
+            // Update statistics
+            document.getElementById('summaryStats').innerHTML = `
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <p class="text-2xl font-bold text-blue-600">${floors.length}</p>
+                    <p class="text-sm text-gray-600">Total Floors</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <p class="text-2xl font-bold text-green-600">${totalRooms}</p>
+                    <p class="text-sm text-gray-600">Total Rooms</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <p class="text-2xl font-bold text-purple-600">${totalServices}</p>
+                    <p class="text-sm text-gray-600">Total Services</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <p class="text-2xl font-bold text-red-600">$${totalPrice}</p>
+                    <p class="text-sm text-gray-600">Total Estimate</p>
+                </div>
+            `;
+
+            // Generate floor breakdown
+            const floorBreakdown = document.getElementById('floorBreakdown');
+            floorBreakdown.innerHTML = '';
+
+            floors.forEach((floor, floorIndex) => {
+                const floorHTML = `
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold mb-4 border-b pb-2">${floor.name}</h3>
+                        <div class="space-y-4">
+                `;
+
+                floor.rooms.forEach((room, roomIndex) => {
+                    let roomHTML = `
+                        <div class="room-badge p-4 rounded-lg">
+                            <h4 class="font-semibold text-lg mb-2">${room.name}</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    `;
+
+                    room.services.forEach(service => {
+                        roomHTML += `
+                            <div class="service-badge p-3 rounded">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-medium">${service.type}</span>
+                                    <span class="text-green-600 font-semibold">$${service.price}</span>
+                                </div>
+                                <div class="text-sm text-gray-600 mt-1">Quantity: ${service.quantity}</div>
+                            </div>
+                        `;
+                    });
+
+                    roomHTML += `
+                            </div>
+                            <div class="mt-3 text-right font-semibold text-lg">
+                                Room Total: $${room.totalPrice}
+                            </div>
+                        </div>
+                    `;
+                    floorBreakdown.innerHTML += roomHTML;
+                });
+
+                floorBreakdown.innerHTML += `
+                        </div>
+                        <div class="mt-4 p-4 bg-blue-50 rounded-lg">
+                            <div class="flex justify-between items-center font-semibold">
+                                <span>${floor.name} Total:</span>
+                                <span class="text-xl">$${floor.totalPrice}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Add special instructions if any
+            if (orderNotes) {
+                floorBreakdown.innerHTML += `
+                    <div class="mt-6 p-4 bg-yellow-50 rounded-lg border-l-4 border-yellow-400">
+                        <h4 class="font-semibold mb-2">Special Instructions</h4>
+                        <p class="text-gray-700">${orderNotes}</p>
+                    </div>
+                `;
+            }
+
+            // Show modal
+            document.getElementById('orderSummaryModal').classList.remove('hidden');
+        }
+
+        // Download as PDF
+        document.getElementById('downloadPdfBtn').addEventListener('click', function() {
+            const element = document.getElementById('pdfContent');
+            
+            html2canvas(element, {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                windowWidth: element.scrollWidth,
+                windowHeight: element.scrollHeight
+            }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const imgWidth = 210; // A4 width in mm
+                const pageHeight = 295; // A4 height in mm
+                const imgHeight = canvas.height * imgWidth / canvas.width;
+                let heightLeft = imgHeight;
+                let position = 0;
+
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+
+                const clientName = document.getElementById('clientName').value || 'quotation';
+                pdf.save(`Kazkleen-Quotation-${clientName}.pdf`);
+            });
+        });
+
+        // Download as JPG
+        document.getElementById('downloadJpgBtn').addEventListener('click', function() {
+            const element = document.getElementById('pdfContent');
+            
+            html2canvas(element, {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                windowWidth: element.scrollWidth,
+                windowHeight: element.scrollHeight
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `Kazkleen-Quotation-${document.getElementById('clientName').value || 'quotation'}.jpg`;
+                link.href = canvas.toDataURL('image/jpeg', 0.9);
+                link.click();
+            });
+        });
+
+        // Submit order flow
+        document.getElementById('submitOrderBtn').addEventListener('click', function() {
+            const clientName = document.getElementById('clientName').value;
+            const orderDate = document.getElementById('orderDate').value;
+            
+            if (!clientName || !orderDate) {
+                alert('Please fill in all required fields (Client Name and Date)');
+                return;
+            }
+            
+            generateOrderSummary();
+        });
+
+        // Close summary modal
+        document.getElementById('closeSummaryBtn').addEventListener('click', function() {
+            document.getElementById('orderSummaryModal').classList.add('hidden');
+        });
+
+        // Confirm submission
+        document.getElementById('confirmSubmitBtn').addEventListener('click', function() {
+            // Here you would normally send the data to your backend
+            const orderData = collectOrderData();
+            
+            // Save to localStorage for demo purposes
+            saveOrderToStorage(orderData);
+            
+            alert('Order submitted successfully!');
+            document.getElementById('orderSummaryModal').classList.add('hidden');
+            window.location.href = 'orders.html';
+        });
+
+        // Save as draft
+        document.getElementById('saveDraftBtn').addEventListener('click', function() {
+            const clientName = document.getElementById('clientName').value;
+            
+            if (!clientName) {
+                alert('Please at least enter a client name');
+                return;
+            }
+            
+            const orderData = collectOrderData();
+            orderData.status = 'draft';
+            saveOrderToStorage(orderData);
+            
+            alert('Order saved as draft successfully!');
+        });
+
+        // Collect all order data
+        function collectOrderData() {
+            const orderData = {
+                id: Date.now().toString(),
+                clientName: document.getElementById('clientName').value,
+                clientPhone: document.getElementById('clientPhone').value,
+                clientEmail: document.getElementById('clientEmail').value,
+                clientAddress: document.getElementById('clientAddress').value,
+                orderDate: document.getElementById('orderDate').value,
+                quoteNumber: document.getElementById('quoteNumber').value,
+                notes: document.getElementById('orderNotes').value,
+                floors: [],
+                createdAt: new Date().toISOString(),
+                status: 'active'
+            };
+
+            document.querySelectorAll('.floor-section').forEach(floor => {
+                const floorData = {
+                    name: floor.querySelector('.floor-name').value,
+                    rooms: []
+                };
+
+                floor.querySelectorAll('.room-item').forEach(room => {
+                    const roomData = {
+                        name: room.querySelector('.room-name').value,
+                        services: []
+                    };
+
+                    room.querySelectorAll('.service-item').forEach(service => {
+                        const serviceType = service.querySelector('.service-type').value;
+                        const quantity = parseInt(service.querySelector('.service-quantity').value) || 1;
+                        
+                        if (serviceType) {
+                            roomData.services.push({
+                                type: serviceType,
+                                quantity: quantity,
+                                price: servicePricing[serviceType] || 0
+                            });
+                        }
+                    });
+
+                    if (roomData.services.length > 0) {
+                        floorData.rooms.push(roomData);
+                    }
+                });
+
+                if (floorData.rooms.length > 0) {
+                    orderData.floors.push(floorData);
+                }
+            });
+
+            return orderData;
+        }
+
+        // Save order to localStorage (replace with API call in production)
+        function saveOrderToStorage(orderData) {
+            let orders = JSON.parse(localStorage.getItem('kazkleen_orders')) || [];
+            orders.push(orderData);
+            localStorage.setItem('kazkleen_orders', JSON.stringify(orders));
+        }
+
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = 'index.html';
+            }
+        });
+        
+        feather.replace();
+    </script>
+</body>
+</html>
