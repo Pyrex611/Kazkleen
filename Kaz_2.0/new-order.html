@@ -573,6 +573,63 @@
         });
 
         document.getElementById('confirmSubmitBtn').addEventListener('click', function() {
+            // Save order to localStorage
+            const clientName = document.getElementById('clientName').value;
+            const clientPhone = document.getElementById('clientPhone').value;
+            const clientEmail = document.getElementById('clientEmail').value;
+            const orderDate = document.getElementById('orderDate').value;
+            const orderNotes = document.getElementById('orderNotes').value;
+            
+            // Get all floor data
+            let floors = [];
+            document.querySelectorAll('.floor-section').forEach(floor => {
+                let floorData = {
+                    name: floor.querySelector('h4').textContent,
+                    rooms: []
+                };
+                
+                floor.querySelectorAll('.room-item').forEach(room => {
+                    let roomData = {
+                        name: room.querySelector('h5').textContent,
+                        customName: room.querySelector('input[type="text"]')?.value || '',
+                        services: []
+                    };
+                    
+                    room.querySelectorAll('.service-item').forEach(service => {
+                        const serviceName = service.querySelector('select').value;
+                        if (serviceName !== 'Select Service') {
+                            roomData.services.push({
+                                name: serviceName,
+                                quantity: service.querySelector('input[type="number"]').value
+                            });
+                        }
+                    });
+                    
+                    floorData.rooms.push(roomData);
+                });
+                
+                floors.push(floorData);
+            });
+            
+            // Create order object
+            const order = {
+                id: Date.now(),
+                clientName,
+                clientPhone,
+                clientEmail,
+                orderDate,
+                orderNotes,
+                floors,
+                status: 'active',
+                createdAt: new Date().toISOString(),
+                createdBy: currentUser.username
+            };
+            
+            // Save to localStorage
+            let orders = JSON.parse(localStorage.getItem('kazkleen_orders')) || [];
+            orders.push(order);
+            localStorage.setItem('kazkleen_orders', JSON.stringify(orders));
+            
             // Here you would normally send the data to the server
             alert('Order submitted successfully!');
             document.getElementById('orderSummaryModal').classList.add('hidden');
@@ -595,6 +652,7 @@
         // Logout functionality
         document.getElementById('logoutBtn').addEventListener('click', function() {
             if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('currentUser');
                 window.location.href = 'index.html';
             }
         });

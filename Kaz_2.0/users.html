@@ -216,6 +216,12 @@
     </footer>
 
     <script>
+        // Check authentication
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        if (!currentUser || currentUser.role !== 'manager') {
+            window.location.href = 'index.html';
+        }
+		
         // Modal functionality
         document.getElementById('addUserBtn').addEventListener('click', function() {
             document.getElementById('addUserModal').classList.remove('hidden');
@@ -246,8 +252,20 @@
                 return;
             }
             
-            // Here you would normally send the data to the server
-            // For this demo, we'll just show an alert
+            // Save user to localStorage
+            let users = JSON.parse(localStorage.getItem('kazkleen_users')) || [];
+            const newUser = {
+                id: Date.now(),
+                username,
+                email,
+                password,
+                role,
+                created: new Date().toISOString(),
+                lastLogin: null
+            };
+            users.push(newUser);
+            localStorage.setItem('kazkleen_users', JSON.stringify(users));
+            
             alert('User created successfully!');
             
             // Reset form and close modal

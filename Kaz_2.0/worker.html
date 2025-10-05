@@ -353,8 +353,19 @@
                 return;
             }
             
-            // Here you would normally send the data to the server
-            // For this demo, we'll just show an alert
+            // Save order to localStorage
+            let orders = JSON.parse(localStorage.getItem('kazkleen_orders')) || [];
+            const newOrder = {
+                id: Date.now(),
+                clientName,
+                orderDate,
+                status: 'active',
+                createdBy: currentUser.username,
+                createdAt: new Date().toISOString()
+            };
+            orders.push(newOrder);
+            localStorage.setItem('kazkleen_orders', JSON.stringify(orders));
+            
             alert('Order submitted successfully!');
             // Reset form (in a real app, you might want to redirect or show a success message)
             document.getElementById('clientName').value = '';
@@ -372,6 +383,7 @@
         // Logout functionality
         document.getElementById('logoutBtn').addEventListener('click', function() {
             if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('currentUser');
                 window.location.href = 'index.html';
             }
         });
