@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kazkleen CRM - User Management</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        .user-card {
+            transition: all 0.2s ease;
+        }
+        .user-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        .role-badge {
+            transition: all 0.2s ease;
+        }
+        .role-badge:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <!-- Fixed Header -->
+    <header class="bg-black text-white sticky top-0 z-50 shadow-lg">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <img src="kazkleen.jpg" alt="Kazkleen Logo" class="h-10">
+                <h1 class="text-xl font-bold">Kazkleen CRM</h1>
+            </div>
+            <nav class="hidden md:flex space-x-6">
+                <a href="dashboard.html" class="hover:text-gray-300 transition">Dashboard</a>
+                <a href="orders.html" class="hover:text-gray-300 transition">Orders</a>
+                <a href="users.html" class="active-nav hover:text-gray-300 transition">Users</a>
+                <a href="#" id="logoutBtn" class="hover:text-gray-300 transition">Logout</a>
+            </nav>
+            <button id="mobileMenuBtn" class="md:hidden">
+                <i data-feather="menu" class="text-white"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-2xl font-bold text-gray-800">User Management</h2>
+            <button id="addUserBtn" 
+                    class="glossy-btn py-2 px-6 rounded-lg text-gray-800 font-semibold flex items-center space-x-2">
+                <i data-feather="plus"></i>
+                <span>Add User</span>
+            </button>
+        </div>
+
+        <!-- Users Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="usersGrid">
+            <!-- Users will be loaded here -->
+        </div>
+
+        <!-- Add User Modal -->
+        <div id="addUserModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+            <div class="bg-white rounded-xl p-6 w-full max-w-md">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold" id="userModalTitle">Add New User</h3>
+                    <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700">
+                        <i data-feather="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+                
+                <form id="userForm" class="space-y-4">
+                    <input type="hidden" id="userId">
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                        <input type="text" id="username" name="username" 
+                               class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                               placeholder="Enter username" required>
+                    </div>
+                    
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input type="email" id="email" name="email" 
+                               class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                               placeholder="Enter email" required>
+                    </div>
+                    
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <input type="password" id="password" name="password" 
+                               class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                               placeholder="Enter password" required>
+                    </div>
+                    
+                    <div>
+                        <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                        <select id="role" name="role" 
+                                class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent">
+                            <option value="worker">Worker</option>
+                            <option value="manager">Manager</option>
+                        </select>
+                    </div>
+                    
+                    <div class="pt-2">
+                        <button type="submit" 
+                                class="w-full bg-black text-white py-2 px-4 rounded-lg font-semibold hover:bg-gray-800 transition">
+                            Create User
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-black text-white py-4 text-center text-sm">
+        <p>&copy; 2025 Kazkleen Cleaning Services. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Check authentication and manager role
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/auth/check');
+                const data = await response.json();
+                
+                if (!data.authenticated || data.user.role !== 'manager') {
+                    window.location.href = 'index.html';
+                    return false;
+                }
+                return true;
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                window.location.href = 'index.html';
+                return false;
+            }
+        }
+
+        let users = [];
+
+        // Load users from backend
+        async function loadUsers() {
+            try {
+                const response = await fetch('/api/users');
+                users = await response.json();
+                renderUsers();
+            } catch (error) {
+                console.error('Failed to load users:', error);
+            }
+        }
+
+        function renderUsers() {
+            const usersGrid = document.getElementById('usersGrid');
+            usersGrid.innerHTML = '';
+
+            if (users.length === 0) {
+                usersGrid.innerHTML = `
+                    <div class="col-span-3 text-center py-8">
+                        <p class="text-gray-500">No users found</p>
+                    </div>
+                `;
+                return;
+            }
+
+            users.forEach(user => {
+                const userCard = document.createElement('div');
+                userCard.className = 'user-card bg-white rounded-xl p-6 shadow';
+                userCard.innerHTML = `
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-xl font-semibold">${user.username}</h3>
+                            <p class="text-gray-500">${user.email}</p>
+                        </div>
+                        <span class="role-badge ${
+                            user.role === 'manager' ? 'bg-black text-white' : 'bg-gray-200 text-gray-800'
+                        } px-3 py-1 rounded-full text-xs font-semibold">
+                            ${user.role === 'manager' ? 'Manager' : 'Worker'}
+                        </span>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Last Login:</span>
+                            <span>${user.last_login ? new Date(user.last_login).toLocaleString() : 'Never'}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Created:</span>
+                            <span>${new Date(user.created_at).toLocaleDateString()}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 pt-4 border-t border-gray-200 flex justify-end space-x-2">
+                        <button class="text-blue-500 hover:text-blue-700 p-2 rounded-full hover:bg-blue-50 edit-user" data-id="${user.id}">
+                            <i data-feather="edit" class="w-4 h-4"></i>
+                        </button>
+                        <button class="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 delete-user" data-id="${user.id}">
+                            <i data-feather="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                `;
+                usersGrid.appendChild(userCard);
+            });
+
+            feather.replace();
+
+            // Add event listeners
+            document.querySelectorAll('.edit-user').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const userId = parseInt(this.dataset.id);
+                    editUser(userId);
+                });
+            });
+
+            document.querySelectorAll('.delete-user').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const userId = parseInt(this.dataset.id);
+                    deleteUser(userId);
+                });
+            });
+        }
+
+        function editUser(id) {
+            const user = users.find(u => u.id === id);
+            if (user) {
+                document.getElementById('userModalTitle').textContent = 'Edit User';
+                document.getElementById('userId').value = user.id;
+                document.getElementById('username').value = user.username;
+                document.getElementById('email').value = user.email;
+                document.getElementById('password').value = ''; // Don't show current password
+                document.getElementById('password').required = false;
+                document.getElementById('role').value = user.role;
+                document.getElementById('addUserModal').classList.remove('hidden');
+            }
+        }
+
+        async function deleteUser(id) {
+            if (confirm('Are you sure you want to delete this user?')) {
+                try {
+                    const response = await fetch(`/api/users/${id}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        await loadUsers();
+                        alert('User deleted successfully!');
+                    } else {
+                        const error = await response.json();
+                        alert(error.error || 'Failed to delete user');
+                    }
+                } catch (error) {
+                    console.error('Delete user error:', error);
+                    alert('Failed to delete user');
+                }
+            }
+        }
+
+        // Modal functionality
+        document.getElementById('addUserBtn').addEventListener('click', function() {
+            document.getElementById('userModalTitle').textContent = 'Add New User';
+            document.getElementById('userForm').reset();
+            document.getElementById('userId').value = '';
+            document.getElementById('password').required = true;
+            document.getElementById('addUserModal').classList.remove('hidden');
+        });
+        
+        document.getElementById('closeModalBtn').addEventListener('click', function() {
+            document.getElementById('addUserModal').classList.add('hidden');
+        });
+        
+        // Close modal when clicking outside
+        document.getElementById('addUserModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.add('hidden');
+            }
+        });
+        
+        // Form submission
+        document.getElementById('userForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const userId = document.getElementById('userId').value;
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+            
+            try {
+                let response;
+                if (userId) {
+                    // Edit existing user
+                    const userData = { username, email, role };
+                    if (password) {
+                        userData.password = password;
+                    }
+                    
+                    // Note: The backend currently doesn't have an update endpoint
+                    // For now, we'll show a message
+                    alert('User editing functionality will be implemented in the backend');
+                    return;
+                } else {
+                    // Create new user
+                    response = await fetch('/api/users', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ username, email, password, role })
+                    });
+                }
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    await loadUsers();
+                    document.getElementById('addUserModal').classList.add('hidden');
+                    alert('User created successfully!');
+                } else {
+                    alert(data.error || 'Failed to save user');
+                }
+            } catch (error) {
+                console.error('Save user error:', error);
+                alert('Failed to save user');
+            }
+        });
+        
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', async function() {
+            if (confirm('Are you sure you want to logout?')) {
+                try {
+                    await fetch('/api/auth/logout', { method: 'POST' });
+                    window.location.href = 'index.html';
+                } catch (error) {
+                    console.error('Logout error:', error);
+                    window.location.href = 'index.html';
+                }
+            }
+        });
+
+        // Initialize users page
+        async function initializeUsers() {
+            const isAuthenticated = await checkAuth();
+            if (isAuthenticated) {
+                await loadUsers();
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', initializeUsers);
+        feather.replace();
+    </script>
+</body>
+</html>

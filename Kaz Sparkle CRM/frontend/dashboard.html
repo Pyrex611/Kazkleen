@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kazkleen CRM - Manager Dashboard</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .stats-card {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        .active-nav {
+            position: relative;
+        }
+        .active-nav::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: white;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <!-- Fixed Header -->
+    <header class="bg-black text-white sticky top-0 z-50 shadow-lg">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <img src="kazkleen.jpg" alt="Kazkleen Logo" class="h-10">
+                <h1 class="text-xl font-bold">Kazkleen CRM</h1>
+            </div>
+            <nav class="hidden md:flex space-x-6">
+                <a href="dashboard.html" class="active-nav hover:text-gray-300 transition">Dashboard</a>
+                <a href="orders.html" class="hover:text-gray-300 transition">Orders</a>
+                <a href="users.html" class="hover:text-gray-300 transition">Users</a>
+                <a href="#" id="logoutBtn" class="hover:text-gray-300 transition">Logout</a>
+            </nav>
+            <button id="mobileMenuBtn" class="md:hidden">
+                <i data-feather="menu" class="text-white"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-2xl font-bold text-gray-800">Manager Dashboard</h2>
+            <a href="new-order.html" class="glossy-btn py-2 px-6 rounded-lg text-gray-800 font-semibold flex items-center space-x-2">
+                <i data-feather="plus"></i>
+                <span>New Order</span>
+            </a>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="stats-card bg-white rounded-xl p-6 shadow">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-500 text-sm">Total Orders</p>
+                        <h3 class="text-3xl font-bold mt-1" id="totalOrders">0</h3>
+                    </div>
+                    <div class="p-3 bg-blue-100 rounded-full">
+                        <i data-feather="file-text" class="text-blue-500"></i>
+                    </div>
+                </div>
+                <p class="text-green-500 text-sm mt-2 flex items-center">
+                    <i data-feather="trending-up" class="mr-1"></i>
+                    <span>Real-time Data</span>
+                </p>
+            </div>
+
+            <div class="stats-card bg-white rounded-xl p-6 shadow">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-500 text-sm">Completed Orders</p>
+                        <h3 class="text-3xl font-bold mt-1" id="completedOrders">0</h3>
+                    </div>
+                    <div class="p-3 bg-green-100 rounded-full">
+                        <i data-feather="check-circle" class="text-green-500"></i>
+                    </div>
+                </div>
+                <p class="text-green-500 text-sm mt-2 flex items-center">
+                    <i data-feather="trending-up" class="mr-1"></i>
+                    <span>Real-time Data</span>
+                </p>
+            </div>
+
+            <div class="stats-card bg-white rounded-xl p-6 shadow">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-500 text-sm">Active Orders</p>
+                        <h3 class="text-3xl font-bold mt-1" id="activeOrders">0</h3>
+                    </div>
+                    <div class="p-3 bg-purple-100 rounded-full">
+                        <i data-feather="layers" class="text-purple-500"></i>
+                    </div>
+                </div>
+                <p class="text-green-500 text-sm mt-2 flex items-center">
+                    <i data-feather="trending-up" class="mr-1"></i>
+                    <span>Real-time Data</span>
+                </p>
+            </div>
+
+            <div class="stats-card bg-white rounded-xl p-6 shadow">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-500 text-sm">Unique Clients</p>
+                        <h3 class="text-3xl font-bold mt-1" id="uniqueClients">0</h3>
+                    </div>
+                    <div class="p-3 bg-yellow-100 rounded-full">
+                        <i data-feather="users" class="text-yellow-500"></i>
+                    </div>
+                </div>
+                <p class="text-green-500 text-sm mt-2 flex items-center">
+                    <i data-feather="trending-up" class="mr-1"></i>
+                    <span>Real-time Data</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white rounded-xl p-6 shadow">
+                <h3 class="text-lg font-semibold mb-4">Orders Overview</h3>
+                <canvas id="ordersChart" height="300"></canvas>
+            </div>
+            <div class="bg-white rounded-xl p-6 shadow">
+                <h3 class="text-lg font-semibold mb-4">Revenue Summary</h3>
+                <canvas id="revenueChart" height="300"></canvas>
+            </div>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="bg-white rounded-xl p-6 shadow">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">Recent Orders</h3>
+                <a href="orders.html" class="text-sm text-blue-500 hover:underline">View All</a>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quote #</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="recentOrdersTable">
+                        <!-- Recent orders will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Service Management Section -->
+        <div class="bg-white rounded-xl p-6 shadow mt-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">Service Management</h3>
+                <button id="addServiceBtn" class="glossy-btn py-2 px-4 rounded-lg text-gray-800 font-semibold flex items-center space-x-2">
+                    <i data-feather="plus"></i>
+                    <span>Add Service</span>
+                </button>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service Name</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price ($)</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="servicesTableBody">
+                        <!-- Services will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Add Service Modal -->
+        <div id="addServiceModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+            <div class="bg-white rounded-xl p-6 w-full max-w-md">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold" id="serviceModalTitle">Add New Service</h3>
+                    <button id="closeServiceModalBtn" class="text-gray-500 hover:text-gray-700">
+                        <i data-feather="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+                
+                <form id="serviceForm" class="space-y-4">
+                    <input type="hidden" id="serviceId">
+                    <div>
+                        <label for="serviceName" class="block text-sm font-medium text-gray-700 mb-1">Service Name</label>
+                        <input type="text" id="serviceName" name="serviceName" 
+                               class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                               placeholder="Enter service name" required>
+                    </div>
+                    
+                    <div>
+                        <label for="servicePrice" class="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
+                        <input type="number" id="servicePrice" name="servicePrice" step="0.01" min="0"
+                               class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                               placeholder="Enter price" required>
+                    </div>
+
+                    <div>
+                        <label for="serviceDescription" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <textarea id="serviceDescription" name="serviceDescription"
+                                  class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                                  rows="3" placeholder="Enter service description"></textarea>
+                    </div>
+                    
+                    <div class="pt-2">
+                        <button type="submit" 
+                                class="w-full bg-black text-white py-2 px-4 rounded-lg font-semibold hover:bg-gray-800 transition">
+                            Save Service
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-black text-white py-4 text-center text-sm">
+        <p>&copy; 2025 Kazkleen Cleaning Services. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Check authentication
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/auth/check');
+                const data = await response.json();
+                
+                if (!data.authenticated || data.user.role !== 'manager') {
+                    window.location.href = 'index.html';
+                    return false;
+                }
+                return true;
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                window.location.href = 'index.html';
+                return false;
+            }
+        }
+
+        // Load dashboard data
+        async function loadDashboardData() {
+            try {
+                // Load order statistics
+                const statsResponse = await fetch('/api/orders/stats/overview');
+                const stats = await statsResponse.json();
+                
+                document.getElementById('totalOrders').textContent = stats.total_orders || 0;
+                document.getElementById('completedOrders').textContent = stats.completed_orders || 0;
+                document.getElementById('activeOrders').textContent = stats.active_orders || 0;
+                document.getElementById('uniqueClients').textContent = stats.unique_clients || 0;
+
+                // Load recent orders
+                const ordersResponse = await fetch('/api/orders');
+                const orders = await ordersResponse.json();
+                
+                const recentOrdersTable = document.getElementById('recentOrdersTable');
+                recentOrdersTable.innerHTML = '';
+                
+                orders.slice(0, 5).forEach(order => {
+                    const row = document.createElement('tr');
+                    row.className = 'order-row';
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">${order.quote_number}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${order.client_name || 'N/A'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${new Date(order.order_date).toLocaleDateString()}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">$${order.total_price || '0.00'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                order.status === 'completed' ? 'bg-green-100 text-green-800' :
+                                order.status === 'active' ? 'bg-yellow-100 text-yellow-800' :
+                                'bg-red-100 text-red-800'
+                            }">${order.status}</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <a href="orders.html" class="text-blue-500 hover:text-blue-700">View</a>
+                        </td>
+                    `;
+                    recentOrdersTable.appendChild(row);
+                });
+
+                // Initialize charts
+                initializeCharts(orders);
+            } catch (error) {
+                console.error('Failed to load dashboard data:', error);
+            }
+        }
+
+        // Initialize charts
+        function initializeCharts(orders) {
+            // Orders chart
+            const ordersCtx = document.getElementById('ordersChart').getContext('2d');
+            const ordersChart = new Chart(ordersCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Active', 'Completed', 'Total'],
+                    datasets: [{
+                        label: 'Orders',
+                        data: [
+                            orders.filter(o => o.status === 'active').length,
+                            orders.filter(o => o.status === 'completed').length,
+                            orders.length
+                        ],
+                        backgroundColor: [
+                            '#F59E0B',
+                            '#10B981',
+                            '#3B82F6'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Revenue chart
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            const revenueChart = new Chart(revenueCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completed Orders', 'Active Orders'],
+                    datasets: [{
+                        data: [
+                            orders.filter(o => o.status === 'completed').reduce((sum, o) => sum + (o.total_price || 0), 0),
+                            orders.filter(o => o.status === 'active').reduce((sum, o) => sum + (o.total_price || 0), 0)
+                        ],
+                        backgroundColor: [
+                            '#10B981',
+                            '#F59E0B'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        }
+                    }
+                }
+            });
+        }
+
+        // Service Management
+        let services = [];
+
+        async function loadServices() {
+            try {
+                const response = await fetch('/api/services');
+                services = await response.json();
+                renderServices();
+            } catch (error) {
+                console.error('Failed to load services:', error);
+            }
+        }
+
+        function renderServices() {
+            const tbody = document.getElementById('servicesTableBody');
+            tbody.innerHTML = '';
+            
+            services.forEach(service => {
+                const row = document.createElement('tr');
+                row.className = 'order-row';
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">${service.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">$${service.price}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${service.description || '-'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap flex space-x-2">
+                        <button class="text-blue-500 hover:text-blue-700 edit-service" data-id="${service.id}">
+                            <i data-feather="edit" class="w-4 h-4"></i>
+                        </button>
+                        <button class="text-red-500 hover:text-red-700 delete-service" data-id="${service.id}">
+                            <i data-feather="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            feather.replace();
+            
+            // Add event listeners
+            document.querySelectorAll('.edit-service').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const serviceId = parseInt(this.dataset.id);
+                    editService(serviceId);
+                });
+            });
+            
+            document.querySelectorAll('.delete-service').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const serviceId = parseInt(this.dataset.id);
+                    deleteService(serviceId);
+                });
+            });
+        }
+
+        function editService(id) {
+            const service = services.find(s => s.id === id);
+            if (service) {
+                document.getElementById('serviceModalTitle').textContent = 'Edit Service';
+                document.getElementById('serviceId').value = service.id;
+                document.getElementById('serviceName').value = service.name;
+                document.getElementById('servicePrice').value = service.price;
+                document.getElementById('serviceDescription').value = service.description || '';
+                document.getElementById('addServiceModal').classList.remove('hidden');
+            }
+        }
+
+        async function deleteService(id) {
+            if (confirm('Are you sure you want to delete this service?')) {
+                try {
+                    const response = await fetch(`/api/services/${id}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    if (response.ok) {
+                        await loadServices();
+                    } else {
+                        alert('Failed to delete service');
+                    }
+                } catch (error) {
+                    console.error('Delete service error:', error);
+                    alert('Failed to delete service');
+                }
+            }
+        }
+
+        // Service modal functionality
+        document.getElementById('addServiceBtn').addEventListener('click', function() {
+            document.getElementById('serviceModalTitle').textContent = 'Add New Service';
+            document.getElementById('serviceForm').reset();
+            document.getElementById('serviceId').value = '';
+            document.getElementById('addServiceModal').classList.remove('hidden');
+        });
+
+        document.getElementById('closeServiceModalBtn').addEventListener('click', function() {
+            document.getElementById('addServiceModal').classList.add('hidden');
+        });
+
+        document.getElementById('serviceForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const serviceId = document.getElementById('serviceId').value;
+            const serviceName = document.getElementById('serviceName').value;
+            const servicePrice = parseFloat(document.getElementById('servicePrice').value);
+            const serviceDescription = document.getElementById('serviceDescription').value;
+            
+            try {
+                let response;
+                if (serviceId) {
+                    // Edit existing service
+                    response = await fetch(`/api/services/${serviceId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            name: serviceName,
+                            price: servicePrice,
+                            description: serviceDescription
+                        })
+                    });
+                } else {
+                    // Add new service
+                    response = await fetch('/api/services', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            name: serviceName,
+                            price: servicePrice,
+                            description: serviceDescription
+                        })
+                    });
+                }
+                
+                if (response.ok) {
+                    await loadServices();
+                    document.getElementById('addServiceModal').classList.add('hidden');
+                } else {
+                    const error = await response.json();
+                    alert(error.error || 'Failed to save service');
+                }
+            } catch (error) {
+                console.error('Save service error:', error);
+                alert('Failed to save service');
+            }
+        });
+
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', async function() {
+            if (confirm('Are you sure you want to logout?')) {
+                try {
+                    await fetch('/api/auth/logout', { method: 'POST' });
+                    window.location.href = 'index.html';
+                } catch (error) {
+                    console.error('Logout error:', error);
+                    window.location.href = 'index.html';
+                }
+            }
+        });
+
+        // Initialize dashboard
+        async function initializeDashboard() {
+            const isAuthenticated = await checkAuth();
+            if (isAuthenticated) {
+                await loadDashboardData();
+                await loadServices();
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', initializeDashboard);
+        feather.replace();
+    </script>
+</body>
+</html>
