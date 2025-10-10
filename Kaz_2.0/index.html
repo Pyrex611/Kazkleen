@@ -103,19 +103,20 @@
             const password = document.getElementById('password').value;
             
             // Default credentials
-            if ((username === 'admin' && password === 'admin123') || 
+            if ((username === 'admin' && password === 'admin123') ||
+				((username === 'Kazqueen' && password === 'Zane0404') ||
                 (username === 'worker' && password === 'worker123')) {
                 // Store user in localStorage
                 localStorage.setItem('currentUser', JSON.stringify({
                     username: username,
-                    role: username === 'admin' ? 'manager' : 'worker'
+                    role: username === 'worker' ? 'worker' : 'manager'
                 }));
                 
                 // Redirect based on role
-                if (username === 'admin') {
-                    window.location.href = 'dashboard.html'; // Manager dashboard
-                } else {
+                if (username === 'worker') {
                     window.location.href = 'new-order.html'; // Worker interface
+                } else {
+                    window.location.href = 'dashboard.html'; // Manager dashboard
                 }
             } else {
                 document.getElementById('loginError').classList.remove('hidden');
